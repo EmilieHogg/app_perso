@@ -60,6 +60,7 @@ driver = webdriver.Chrome(
 )
 
 events = []
+debug_info = []
 
 try:
     driver.get(programming_url)
@@ -72,6 +73,18 @@ try:
     soup = BeautifulSoup(driver.page_source, "html.parser")
     cards = soup.find_all("a", class_="FeaturedList__reserve-img")
     shows = soup.find_all("li", class_="show")
+
+
+
+    # DEBUG: Trouver toutes les structures possibles
+    all_cards = soup.find_all("a", class_="FeaturedList__reserve-img")
+    all_shows = soup.find_all("li", class_="show")
+    all_items = soup.find_all("li", class_="FeaturedList__item")
+        
+    print(all_cards)
+    print(all_shows)
+    print(all_items)
+        
   
     for card in cards:
         img = card.find("img")
