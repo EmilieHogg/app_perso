@@ -98,7 +98,10 @@ st.balloons()
 if st.button("Send balloons!"):
     st.balloons()
 
-    from selenium import webdriver
+
+
+
+from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -134,6 +137,8 @@ try:
     )
     
     soup = BeautifulSoup(driver.page_source, "html.parser")
+    
+
     cards = soup.find_all("a", class_="FeaturedList__reserve-img")
     shows = soup.find_all("li", class_="show")
 
@@ -142,32 +147,29 @@ try:
   
     for card in cards:
         img = card.find("img")
-        title = img.get("alt").strip() if img and img.get("alt") else None
-
-    
-    
-
-    for card, show in zip(cards, shows):
-
-        # --- Title & link ---
-        img = card.find("img")
         title = img.get("alt").strip() if img else None
 
-        date_tag = show.find("p", class_="show_date")
-        dates = date_tag.get_text(strip=True) if date_tag else None
+    
+    
+    for card, show in zip(cards, shows):
 
-        loc_tag = show.find("p", class_ ="show_place")
-        location = loc_tag.get_text(strip=True) if loc_tag else None
+        
 
-        href = card.get("href")
+        img = card.find("img") 
+        title = img.get("alt").strip() if img else None
+        # url = card.get_attribute("href")
+        href = card.get("href") 
         url = base_url + href if href and href.startswith("/") else href
+        dates = show.find("p",class_="show_date")
+        location = show.find("p",class_= "show_place")
+
 
         events.append({
-            "title": title,
-            "dates": dates,
-            "location": location,
-            "url": url
-        })
+    "title": title,
+    "dates": dates,
+    "location": location,
+     "url": url
+})
 
 finally:
     driver.quit()
