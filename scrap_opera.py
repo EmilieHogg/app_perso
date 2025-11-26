@@ -34,6 +34,69 @@ st.balloons()
 
 if st.button("Send balloons!"):
     st.balloons()
+import streamlit as st
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# -------------------------------
+# STREAMLIT UI
+# -------------------------------
+
+st.write(" Welcome")
+st.image("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
+
+st.title("Bonjour Jean-Pol")
+st.markdown("""
+**Bienvenue sur ton :rainbow[tableau de bord] interactif!**
+""")
+
+st.balloons()
+
+if st.button("Send balloons!"):
+    st.balloons()
+
+
+import numpy as np
+from PIL import Image
+import streamlit.components.v1 as components
+import streamlit as st
+import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import pandas as pd
+
+
+
+
+st.write(" Welcome") 
+
+st.image("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
+
+st.title("Bonjour Jean-Pol")
+st.markdown(
+    """ 
+    
+
+    **Bienvenue sur ton :rainbow[tableau de bord] interactif!**
+    
+    """
+)
+
+st.balloons()
+
+
+if st.button("Send balloons!"):
+    st.balloons()
 
     from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -60,7 +123,7 @@ driver = webdriver.Chrome(
 )
 
 events = []
-debug_info = []
+
 
 try:
     driver.get(programming_url)
@@ -75,16 +138,7 @@ try:
     shows = soup.find_all("li", class_="show")
 
 
-
-    # DEBUG: Trouver toutes les structures possibles
-    all_cards = soup.find_all("a", class_="FeaturedList__reserve-img")
-    all_shows = soup.find_all("li", class_="show")
-    all_items = soup.find_all("li", class_="FeaturedList__item")
-        
-    print(all_cards)
-    print(all_shows)
-    print(all_items)
-        
+    
   
     for card in cards:
         img = card.find("img")
@@ -100,6 +154,16 @@ try:
 
         loc_tag = show.find("p", class_ ="show_place")
         location = loc_tag.get_text(strip=True) if loc_tag else None
+
+        href = card.get("href")
+        url = base_url + href if href and href.startswith("/") else href
+
+
+    for card, show in zip(cards, shows):
+
+        # --- Title & link ---
+        img = card.find("img")
+        title = img.get("alt").strip() if img else None
 
         href = card.get("href")
         url = base_url + href if href and href.startswith("/") else href
