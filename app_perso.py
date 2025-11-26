@@ -29,6 +29,12 @@ st.markdown(
     """
 )
 
+st.subheader('Programmation Opera de Paris, saison 25/26')
+st.write(f"Title : {e['title']}")
+st.write(f"Dates : {e['dates']}")
+                    
+st.write(f"Total evenements ; {len(unique_events)}")
+
 st.balloons()
 
 

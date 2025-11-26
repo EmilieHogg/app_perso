@@ -147,23 +147,17 @@ try:
     
     
 
-    for show in shows:
+    for card, show in zip(cards, shows):
+
+        # --- Title & link ---
+        img = card.find("img")
+        title = img.get("alt").strip() if img else None
 
         date_tag = show.find("p", class_="show_date")
         dates = date_tag.get_text(strip=True) if date_tag else None
 
         loc_tag = show.find("p", class_ ="show_place")
         location = loc_tag.get_text(strip=True) if loc_tag else None
-
-        href = card.get("href")
-        url = base_url + href if href and href.startswith("/") else href
-
-
-    for card, show in zip(cards, shows):
-
-        # --- Title & link ---
-        img = card.find("img")
-        title = img.get("alt").strip() if img else None
 
         href = card.get("href")
         url = base_url + href if href and href.startswith("/") else href
@@ -187,6 +181,7 @@ for e in events:
         seen_urls.add(e["url"])
 
 # Display results
+
 for e in unique_events:
     print(f"Titre  : {e['title']}")
     print(f"Dates  : {e['dates']}")
@@ -195,3 +190,10 @@ for e in unique_events:
     print("-" * 40)
 
 print(f"Total événements : {len(unique_events)}")
+
+'''st.subheader('Programmation Opera de Paris, saison 25/26')
+st.write(f"Title : {e['title']}")
+st.write(f"Dates : {e['dates']}")
+                    
+st.write(f"Total evenements ; {len(unique_events)}")'''
+
