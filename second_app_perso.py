@@ -1,3 +1,6 @@
+print("Script started")
+
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -6,81 +9,188 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 from webdriver_manager.chrome import ChromeDriverManager
-from requests_html import HTMLSession
-import random
+import requests
+from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright
+from bs4 import BeautifulSoup
 
-print("trial")
 
-def get_google_weather(city):
+import requests
 
-    url = f"https://www.google.com/search?q=meteo+{city}"
+city = "Paris", "Andernos-les-bains"
 
-    chrome_options = Options()
-    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
+api_key = "e8908a3217f223d1a784c8a38643e51f"
 
-    # vrai user-agent Chrome
-    chrome_options.add_argument(
-        "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0.0.0 Safari/537.36"
-    )
+city = "Paris"
+url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric&lang=fr"
 
-    # Empêche Google de détecter Selenium
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    chrome_options.add_experimental_option("useAutomationExtension", False)
+response = requests.get(url)
+print(response.status_code)
+print(response.text)
 
-    driver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()),
-        options=chrome_options
-    )
 
-    try:
-        driver.get(url)
+cities = ["Andernos-les-bains", "Paris"]
 
-        # Pause randomisée pour imiter un humain
-        time.sleep(random.uniform(1.5, 3.2))
 
-        # Injection JS pour supprimer detection Selenium
-        driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+print (city)
 
-        # Attente des données météo
-        temp_el = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "wob_tm"))
-        )
+def get_weather(city):
+    api_key = "e8908a3217f223d1a784c8a38643e51f"  # Free from OpenWeatherMap
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric&lang=fr"
+    data = requests.get(url).json()
+    
+    if "main" not in data:
+        return {"error": data.get("message", "City not found")}
+    
+    return {
+        "temperature": data["main"]["temp"],
+        "description": data["weather"][0]["description"],
+        "humidity": data["main"]["humidity"],
+        "wind": data["wind"]["speed"],
+        "unit": "°C"}
 
-        temp = temp_el.text
-        unit = driver.find_element(By.CSS_SELECTOR, "span.wob_t").text
-        desc = driver.find_element(By.ID, "wob_dc").text
-        humidity = driver.find_element(By.ID, "wob_hm").text
-        wind = driver.find_element(By.ID, "wob_ws").text
-
-        return {
-            "city": city,
-            "temp": f"{temp} {unit}",
-            "description": desc,
-            "humidity": humidity,
-            "wind": wind
-        }
-
-    except Exception as e:
-        print("Erreur :", e)
-        return None
-
-    finally:
-        driver.quit()
+for city in cities: 
+    print (f" météo {city}:", get_weather(city))
 
 
 
+'''with sync_playwright() as p:
+    browser = p.chromium.launch(headless=True)
+    page = browser.new_page(user_agent="Mozilla/5.0 ...")
+    page.goto(f"https://www.google.com/search?q=weather+{city}", timeout=60000)
+    
+    page.wait_for_selector("#wob_tm", timeout=15000)
+    
+    html = page.content()
+    browser.close()
+
+print(html)
+
+soup = BeautifulSoup(html, "html.parser")
+
+temperature = soup.select_one("#wob_tm").text if soup.select_one("#wob_tm") else None
+description = soup.select_one("#wob_dc").text if soup.select_one("#wob_dc") else None
+
+print("Temperature:", temperature)
+print("Description:", description)'''
 
 
-"""base_url = "https://www.operadeparis.fr/programmation/saison-25-26"
-page_segment = ["spectacles-opera", "ballet", "concert et récital", "jeune public"]   # ici tu peux changer selon la page
-programming_url = f"{base_url}/{page_segment}"
 
-print(programming_url)
+#import numpy as np
+#from PIL import Image
+#import streamlit.components.v1 as components
+import streamlit as st
+import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import pandas as pd
 
+
+
+
+st.write(" Welcome") 
+
+st.image("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
+
+st.title("Bonjour Jean-Pol")
+st.markdown(
+    """ 
+    
+
+    **Bienvenue sur ton :rainbow[tableau de bord] interactif!**
+    
+    """
+)
+
+st.balloons()
+
+
+if st.button("Send balloons!"):
+    st.balloons()
+import streamlit as st
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# -------------------------------
+# STREAMLIT UI
+# -------------------------------
+
+st.write(" Welcome")
+st.image("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
+
+st.title("Bonjour Jean-Pol")
+st.markdown("""
+**Bienvenue sur ton :rainbow[tableau de bord] interactif!**
+""")
+
+st.balloons()
+
+if st.button("Send balloons!"):
+    st.balloons()
+
+
+import numpy as np
+from PIL import Image
+import streamlit.components.v1 as components
+import streamlit as st
+import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import pandas as pd
+
+
+
+
+st.write(" Welcome") 
+
+st.image("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
+
+st.title("Bonjour Jean-Pol")
+st.markdown(
+    """ 
+    
+
+    **Bienvenue sur ton :rainbow[tableau de bord] interactif!**
+    
+    """
+)
+
+st.balloons()
+
+
+if st.button("Send balloons!"):
+    st.balloons()
+
+
+
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
+from webdriver_manager.chrome import ChromeDriverManager
+import re
+
+base_url = "https://www.operadeparis.fr"
+programming_url = f"{base_url}/programmation/saison-25-26/opera"
+
+# Setup Chrome options
 chrome_options = Options()
 chrome_options.add_argument("--headless=new")
 chrome_options.add_argument("--no-sandbox")
@@ -93,87 +203,74 @@ driver = webdriver.Chrome(
 
 events = []
 
+
 try:
-    for segment in page_segment:
-        programming_url = f"{base_url}/{segment}"
-        driver.get(programming_url)
-
-
-        WebDriverWait(driver, 15).until(
-        EC.presence_of_all_elements_located((By.CLASS_NAME, "FeaturedList__card"))
-        )
-
+    driver.get(programming_url)
+    
+    # Wait for event cards to load
+    WebDriverWait(driver, 15).until(
+        EC.presence_of_all_elements_located((By.CLASS_NAME, "FeaturedList__reserve-img"))
+    )
+    
     soup = BeautifulSoup(driver.page_source, "html.parser")
+    
 
-    cards = soup.find_all("div", class_="FeaturedList__card")
+    cards = soup.find_all("a", class_="FeaturedList__reserve-img")
+    shows = soup.find_all("li", class_="show")
 
+
+    
+  
     for card in cards:
-
-        # Title = inside the img alt=""
         img = card.find("img")
-        title = img["alt"].strip() if img else None
+        title = img.get("alt").strip() if img else None
 
-        # URL
-        link = card.find("a", class_="FeaturedList__reserve-img")
-        href = link["href"] if link else None
+    
+    
+    for card, show in zip(cards, shows):
+
+        
+
+        img = card.find("img") 
+        title = img.get("alt").strip() if img else None
+        # url = card.get_attribute("href")
+        href = card.get("href") 
         url = base_url + href if href and href.startswith("/") else href
+        dates = show.find("p",class_="show_date")
+        location = show.find("p",class_= "show_place")
 
-          # Dates
-        date_tag1 = card.find("p", class_="FeaturedList__date")
-        dates1 = date_tag1.get_text(strip=True) if date_tag1 else None
-
-        # Location
-        loc_tag1 = card.find("p", class_="FeaturedList__place")
-        location1 = loc_tag1.get_text(strip=True) if loc_tag1 else None
-
-
-
-        # Dates
-        date_tag = card.find("p", p ="show_date")
-        dates = date_tag.get_text(strip=True) if date_tag else None
-
-        # Location
-        loc_tag = card.find("p", p ="show_place")
-        location = loc_tag.get_text(strip=True) if loc_tag else None
 
         events.append({
-            "title": title,
-            "dates": dates1,
-            "location": location1,
-            "url": url
-        })
-
+    "title": title,
+    "dates": dates,
+    "location": location,
+     "url": url
+})
 
 finally:
     driver.quit()
 
 # Remove duplicates
-unique = {e["url"]: e for e in events}.values()
+unique_events = []
+seen_urls = set()
+for e in events:
+    if e["url"] not in seen_urls:
+        unique_events.append(e)
+        seen_urls.add(e["url"])
 
-# Print results
-for e in unique:
+# Display results
+
+for e in unique_events:
     print(f"Titre  : {e['title']}")
     print(f"Dates  : {e['dates']}")
     print(f"Lieu   : {e['location']}")
     print(f"URL    : {e['url']}")
     print("-" * 40)
 
-print(f"Total événements : {len(list(unique))}")
+print(f"Total événements : {len(unique_events)}")
 
-s = HTMLSession()
-
-
-r = s.get("https://www.google.com")
-print(r.status_code)
-
-
-query = "paris"
-url = f'https://www.google.com/search?q=google+weather+{query}'
-
-r = s.get(url, headers = { "user agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)" "AppleWebKit/537.36"})
-
-temp = r.html.find('span#wob_tm', first=True)
-
-
-#unit = r.html.find("div.vk_bk.wob-unit span.wob_t", first=True).text
-#desc =  r.html.find("div.VQF4g", first=True).find("span#wob-dc", first=True)"""
+'''st.subheader('Programmation Opera de Paris, saison 25/26')
+st.write(f"Title : {e['title']}")
+st.write(f"Dates : {e['dates']}")
+                    
+st.write(f"Total evenements ; {len(unique_events)}")'''
