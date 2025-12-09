@@ -1,4 +1,66 @@
 
+import numpy as np
+from PIL import Image
+import streamlit.components.v1 as components
+import streamlit as st
+import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import pandas as pd
+
+
+
+
+st.write(" Welcome") 
+
+st.image("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
+
+st.title("Bonjour Jean-Pol")
+st.markdown(
+    """ 
+    
+
+    **Bienvenue sur ton :rainbow[tableau de bord] interactif!**
+    
+    """
+)
+
+st.balloons()
+
+
+if st.button("Send balloons!"):
+    st.balloons()
+import streamlit as st
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# -------------------------------
+# STREAMLIT UI
+# -------------------------------
+
+st.write(" Welcome")
+st.image("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
+
+st.title("Bonjour Jean-Pol")
+st.markdown("""
+**Bienvenue sur ton :rainbow[tableau de bord] interactif!**
+""")
+
+st.balloons()
+
+if st.button("Send balloons!"):
+    st.balloons()
+
 
 import numpy as np
 from PIL import Image
@@ -29,19 +91,16 @@ st.markdown(
     """
 )
 
-st.subheader('Programmation Opera de Paris, saison 25/26')
-st.write(f"Title : {e['title']}")
-st.write(f"Dates : {e['dates']}")
-                    
-st.write(f"Total evenements ; {len(unique_events)}")
-
 st.balloons()
 
 
 if st.button("Send balloons!"):
     st.balloons()
 
-    from selenium import webdriver
+
+
+
+from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -67,6 +126,7 @@ driver = webdriver.Chrome(
 
 events = []
 
+
 try:
     driver.get(programming_url)
     
@@ -76,33 +136,36 @@ try:
     )
     
     soup = BeautifulSoup(driver.page_source, "html.parser")
+    
+
     cards = soup.find_all("a", class_="FeaturedList__reserve-img")
     shows = soup.find_all("li", class_="show")
+
+
+    
   
     for card in cards:
         img = card.find("img")
-        title = img.get("alt").strip() if img and img.get("alt") else None
+        title = img.get("alt").strip() if img else None
 
     
     
-
     for show in shows:
-
-        date_tag = show.find("p", class_="show_date")
-        dates = date_tag.get_text(strip=True) if date_tag else None
-
-        loc_tag = show.find("p", class_ ="show_place")
-        location = loc_tag.get_text(strip=True) if loc_tag else None
-
-        href = card.get("href")
+        tag = show.find("a", class_="FeaturedList__reserve-img")
+        img = tag.find("img") if tag else None
+        title = img.get("alt").strip() if img else "N/A"
+        href = tag.get("href") if tag else None
         url = base_url + href if href and href.startswith("/") else href
+        dates = show.find("p", class_="show_date")
+        location = show.find("p", class_="show_place")
 
         events.append({
-            "title": title,
-            "dates": dates,
-            "location": location,
-            "url": url
-        })
+        "title": title,
+        "dates": dates.text.strip() if dates else "N/A",
+        "location": location.text.strip() if location else "N/A",
+        "url": url
+    })
+
 
 finally:
     driver.quit()
@@ -116,6 +179,7 @@ for e in events:
         seen_urls.add(e["url"])
 
 # Display results
+
 for e in unique_events:
     print(f"Titre  : {e['title']}")
     print(f"Dates  : {e['dates']}")
@@ -124,3 +188,9 @@ for e in unique_events:
     print("-" * 40)
 
 print(f"Total événements : {len(unique_events)}")
+
+'''st.subheader('Programmation Opera de Paris, saison 25/26')
+st.write(f"Title : {e['title']}")
+st.write(f"Dates : {e['dates']}")
+                    
+st.write(f"Total evenements ; {len(unique_events)}")'''
