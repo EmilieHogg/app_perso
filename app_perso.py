@@ -111,7 +111,14 @@ from webdriver_manager.chrome import ChromeDriverManager
 import re
 
 base_url = "https://www.operadeparis.fr"
-programming_url = f"{base_url}/programmation/saison-25-26/opera"
+programming_url = f"{base_url}/programmation/saison-25-26/"
+
+variable_url = {"opera": "opera", "spectacles-ballet": "spectacles-ballet", "concert-et-recital": "concert-et-recital"}
+
+for value in variable_url.values():
+    programming_url = f"https://www.operadeparis.fr/programmation/saison-25-26/{value}"
+    print(programming_url)
+
 
 # Setup Chrome options
 chrome_options = Options()
