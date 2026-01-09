@@ -31,4 +31,3 @@ print(cac40_table.head())  # print the first few rows
 #print(html[:500])
 
 #print(CAC40)
-#print(CAC40)
