@@ -5,6 +5,7 @@ import requests
 from urllib.request import Request, urlopen
 
 
+
 #headers = {
 #    "User-Agent": (
 #       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -29,4 +30,5 @@ print(cac40_table.head())  # print the first few rows
 #CAC40 = pd.read_html('https://fr.wikipedia.org/wiki/CAC_40')
 #print(html[:500])
 
+#print(CAC40)
 #print(CAC40)
