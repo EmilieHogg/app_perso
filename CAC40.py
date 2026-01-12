@@ -23,7 +23,7 @@ tables = pd.read_html("https://fr.wikipedia.org/wiki/CAC_40",
 # The first table on the page usually contains the CAC 40 components
 cac40_table = tables[4]
 
-print(cac40_table.head())  # print the first few rows
+cac40_table.head()  # print the first few rows
 #req = Request("https://fr.wikipedia.org/wiki/CAC_40", headers=headers)
 #html = urlopen(req).read().decode("utf-8")
 
@@ -31,3 +31,4 @@ print(cac40_table.head())  # print the first few rows
 #print(html[:500])
 
 #print(CAC40)
+

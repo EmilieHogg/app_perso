@@ -1,38 +1,50 @@
-
-import numpy as np
-from PIL import Image
-import streamlit.components.v1 as components
 import streamlit as st
-import requests
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-from bs4 import BeautifulSoup
-import pandas as pd
+import json
+import time
+from streamlit_lottie import st_lottie
+
+def load_lottiefile(filepath):
+    with open(filepath, "r") as f:
+        return json.load(f)
+
+# Load animation
+lottie_confetti = load_lottiefile("confetti.json")
+
+# Placeholder for dynamic content
+placeholder = st.empty()
+
+# 1️⃣ Show confetti first
+st_lottie(lottie_confetti, speed=1, loop=False)
+
+# Wait for confetti to play
+time.sleep(2.5)  # adjust to match animation length
+
+# 2️⃣ Show bienvenue message and keep it
+
+with placeholder.container():
+    st.markdown("""
+    <div style="text-align: center; margin-top: 30px;">
+        <h1 style="font-size: 64px;">👋 Welcome</h1>
+        <h2 style="font-size: 48px;">Bonjour Jean-Pol</h2>
+        <p style="font-size: 32px; font-weight: bold;">
+            Bienvenue sur ton 
+            <span style="background: linear-gradient(90deg, #ff4b4b, #ffa94d, #ffd43b, #69db7c, #4dabf7);
+                         -webkit-background-clip: text;
+                         -webkit-text-fill-color: transparent;">
+                tableau de bord interactif
+            </span> !
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+'''with placeholder.container():
+    st.write("👋 Welcome")
+    st.title("Bonjour Jean-Pol")
+    st.markdown("""
+    **Bienvenue sur ton :rainbow[tableau de bord] interactif !**
+    """)'''
 
 
-
-
-st.write(" Welcome") 
-
-st.image("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
-
-st.title("Bonjour Jean-Pol")
-st.markdown(
-    """ 
-    
-
-    **Bienvenue sur ton :rainbow[tableau de bord] interactif!**
-    
-    """
-)
-
-st.balloons()
-
-
-if st.button("Send balloons!"):
-    st.balloons()
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -48,21 +60,10 @@ import pandas as pd
 # STREAMLIT UI
 # -------------------------------
 
-st.write(" Welcome")
-st.image("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
-
-st.title("Bonjour Jean-Pol")
-st.markdown("""
-**Bienvenue sur ton :rainbow[tableau de bord] interactif!**
-""")
-
-st.balloons()
-
-if st.button("Send balloons!"):
-    st.balloons()
 
 
-import numpy as np
+
+
 from PIL import Image
 import streamlit.components.v1 as components
 import streamlit as st
@@ -77,25 +78,7 @@ import pandas as pd
 
 
 
-st.write(" Welcome") 
 
-st.image("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
-
-st.title("Bonjour Jean-Pol")
-st.markdown(
-    """ 
-    
-
-    **Bienvenue sur ton :rainbow[tableau de bord] interactif!**
-    
-    """
-)
-
-st.balloons()
-
-
-if st.button("Send balloons!"):
-    st.balloons()
 
 
 
