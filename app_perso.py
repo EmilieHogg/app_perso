@@ -3,6 +3,22 @@ import json
 import time
 from streamlit_lottie import st_lottie
 
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import pandas as pd
+from PIL import Image
+import streamlit.components.v1 as components
+import streamlit as st
+import requests
+
+st.write("APP STARTED")
+
 def load_lottiefile(filepath):
     with open(filepath, "r") as f:
         return json.load(f)
@@ -45,16 +61,8 @@ with placeholder.container():
     """)'''
 
 
-import streamlit as st
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
-from bs4 import BeautifulSoup
-import pandas as pd
+
+
 
 # -------------------------------
 # STREAMLIT UI
@@ -64,34 +72,7 @@ import pandas as pd
 
 
 
-from PIL import Image
-import streamlit.components.v1 as components
-import streamlit as st
-import requests
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-from bs4 import BeautifulSoup
-import pandas as pd
 
-
-
-
-
-
-
-
-
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from bs4 import BeautifulSoup
-from webdriver_manager.chrome import ChromeDriverManager
-import re
 
 base_url = "https://www.operadeparis.fr"
 programming_url = f"{base_url}/programmation/saison-25-26/"
@@ -100,7 +81,7 @@ variable_url = {"opera": "opera", "spectacles-ballet": "spectacles-ballet", "con
 
 for value in variable_url.values():
     programming_url = f"https://www.operadeparis.fr/programmation/saison-25-26/{value}"
-    print(programming_url)
+    #print(programming_url)
 
 
 # Setup Chrome options
@@ -170,17 +151,39 @@ for e in events:
 
 # Display results
 
-for e in unique_events:
+'''for e in unique_events:
     print(f"Titre  : {e['title']}")
     print(f"Dates  : {e['dates']}")
     print(f"Lieu   : {e['location']}")
     print(f"URL    : {e['url']}")
-    print("-" * 40)
+    print("-" * 40)'''
 
-print(f"Total événements : {len(unique_events)}")
+#print(f"Total événements : {len(unique_events)}")
 
-'''st.subheader('Programmation Opera de Paris, saison 25/26')
+st.subheader('Programmation Opera de Paris, saison 25/26')
 st.write(f"Title : {e['title']}")
 st.write(f"Dates : {e['dates']}")
                     
-st.write(f"Total evenements ; {len(unique_events)}")'''
+st.write(f"Total evenements ; {len(unique_events)}")
+
+import pandas as pd
+
+# Convert list of dicts to DataFrame
+df_events = pd.DataFrame(unique_events)
+
+st.subheader("🎭 Programmation Opéra de Paris – Saison 25/26")
+st.write("DEBUG: reached dataframe section")
+st.write(unique_events)
+
+
+st.dataframe(
+    df_events,
+    column_config={
+        "title": "Titre",
+        "dates": "Dates",
+        "location": "Lieu",
+        "url": st.column_config.LinkColumn("Lien")
+    },
+    hide_index=True,
+    use_container_width=True
+)
