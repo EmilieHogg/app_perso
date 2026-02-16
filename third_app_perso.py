@@ -107,21 +107,44 @@ def scrape_events(programming_urls):
             driver = webdriver.Chrome(options=options)
             driver.get(url)
             time.sleep(3)
-            print(driver.page_source[:1000])  # first 1000 chars of the HTML
-            
-            print("Found shows:", len(driver.find_elements(By.CSS_SELECTOR, "a.card-programme")))
 
-            # scrape shows
-            show_elements = driver.find_elements(By.CSS_SELECTOR, "a.card-programme")
+            html = driver.page_source  # get page HTML from Selenium driver
+            soup = BeautifulSoup(html, "html.parser")  # create soup object
+
+            show_elements = soup.find_all("li", class_="show")
+            print("Found shows:", len(show_elements))
+
+        
+
             for show in show_elements:
-                title = show.text
-                link = show.get_attribute("href")
-                events.append({
+                link_element = show.find("a", class_="FeaturedList__reserve--img")
+                if link_element and link_element.has_attr("href"):
+                    link = link_element.get("href")
+                    title = link_element.get("aria-label", link_element.text)
+                else:
+                    link = "Unknown"
+                    title = show.get_text(strip=True)
+                    
+                    events.append({
                     "title": title,
                     "dates": "Unknown",
                     "location": "Unknown",
                     "url": link
-                })
+                 })
+
+            
+    # For demo, fill dates/location with Unknown or extract more from show if needed
+    
+                    
+            #for show in show_elements:
+                #title = show.text
+                #link = show.get_attribute("href")
+                #events.append({
+                    #"title": title,
+                    #"dates": "Unknown",
+                    #"location": "Unknown",
+                    #"url": link
+                #})
 
             print(f"Loaded {url} with {len(show_elements)} events")
 
