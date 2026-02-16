@@ -16,6 +16,7 @@ from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 import streamlit as st
 import time
+import re
 
 
 
@@ -107,32 +108,67 @@ def scrape_events(programming_urls):
             driver = webdriver.Chrome(options=options)
             driver.get(url)
             time.sleep(3)
-            print(driver.page_source[:1000])  # first 1000 chars of the HTML
-            
-            print("Found shows:", len(driver.find_elements(By.CSS_SELECTOR, "a.card-programme")))
 
-            # scrape shows
-            show_elements = driver.find_elements(By.CSS_SELECTOR, "a.card-programme")
+            html = driver.page_source  # get page HTML from Selenium driver
+            soup = BeautifulSoup(html, "html.parser")  # create soup object
+
+            show_elements = soup.find_all("li", class_="show")
+            print("Found shows:", len(show_elements))
+
+        
+                  
             for show in show_elements:
-                title = show.text
-                link = show.get_attribute("href")
+                raw_text = show.get_text(separator=" ", strip=True)
+
+                link_element = show.find("a", href=True)
+                if link_element:
+                    link = "https://www.operadeparis.fr" + link_element["href"]
+                else:
+                    link = None  # important : ne pas mettre "Unknown"
+
+                date_match = re.search(r"(du\s\d{1,2}\s+au\s+\d{1,2}\s+[^\s]+\s+\d{4})", raw_text)
+                dates = date_match.group(1) if date_match else "Unknown"
+
+                location = "Palais Garnier" if "Palais Garnier" in raw_text else \
+                "Opéra Bastille" if "Opéra Bastille" in raw_text else "Unknown"
+
+                title = raw_text
+                
+                if dates != "Unknown":
+                    title = title.replace(dates, "")
+                    title = title.replace(location, "").replace("Voir les disponibilités", "").strip()
+
                 events.append({
                     "title": title,
-                    "dates": "Unknown",
-                    "location": "Unknown",
+                    "dates": dates,
+                    "location": location,
                     "url": link
-                })
+                    })
 
             print(f"Loaded {url} with {len(show_elements)} events")
 
         except WebDriverException as e:
+
             print(f"❌ Selenium failed on {url}: {e}")
 
         finally:
+
             if driver:
                 driver.quit()
 
     return events
+
+    '''if "–" in title:
+                title_part, date_part = map(str.strip, title.split("–", 1))
+    else:
+                title_part, date_part = title, "Unknown"
+
+    events.append({
+                "title": title_part,
+                "dates": date_part,
+                "location": "Opéra de Paris",
+                "url": link
+    })'''
 
 events = scrape_events(programming_urls)
 
