@@ -16,6 +16,7 @@ from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 import streamlit as st
 import time
+import re
 
 
 
@@ -115,20 +116,39 @@ def scrape_events(programming_urls):
             print("Found shows:", len(show_elements))
 
         
-
+                  
             for show in show_elements:
                 link_element = show.find("a", class_="FeaturedList__reserve--img")
+                raw_text = show.get_text(separator=" ", strip=True)
                 if link_element and link_element.has_attr("href"):
+                    
                     link = link_element.get("href")
                     title = link_element.get("aria-label", link_element.text)
                 else:
                     link = "Unknown"
-                    title = show.get_text(strip=True)
-                    
-                    events.append({
+                    title = show.get_text(separator=" ", strip=True)
+
+                  # Extract title, location, dates using regex
+                # This assumes the format: Title...Location...du DD au DD Month YYYY
+                # Example raw_text:
+# "BalletLe ParcAngelin PreljocajPalais Garnierdu 03  au 25 févr. 2026Voir les disponibilités"
+
+                date_match = re.search(r"(du\s\d{2}\s+au\s+\d{2}\s+[^\s]+\s+\d{4})", raw_text)
+                dates = date_match.group() if date_match else "Unknown"
+
+                # Location: look for known venues (simpler than full regex)
+                location = "Palais Garnier" if "Palais Garnier" in raw_text else "Opéra Bastille"
+
+                # Title: remove location and dates from raw_text
+                title = raw_text
+                if dates != "Unknown":
+                    title = title.replace(dates, "")
+                title = title.replace(location, "").replace("Voir les disponibilités", "").strip()
+
+                events.append({
                     "title": title,
-                    "dates": "Unknown",
-                    "location": "Unknown",
+                    "dates": dates,
+                    "location": location,
                     "url": link
                  })
 
@@ -156,6 +176,18 @@ def scrape_events(programming_urls):
                 driver.quit()
 
     return events
+
+    if "–" in title:
+                title_part, date_part = map(str.strip, title.split("–", 1))
+    else:
+                title_part, date_part = title, "Unknown"
+
+    events.append({
+                "title": title_part,
+                "dates": date_part,
+                "location": "Opéra de Paris",
+                "url": link
+    })
 
 events = scrape_events(programming_urls)
 
