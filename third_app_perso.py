@@ -102,10 +102,11 @@ def scrape_events(programming_urls):
 
     events = []
 
+    driver = webdriver.Chrome(options=options)
+    
     for url in programming_urls:
-        driver = None
-        try:
-            driver = webdriver.Chrome(options=options)
+        
+        try: 
             driver.get(url)
             time.sleep(3)
 
@@ -122,11 +123,13 @@ def scrape_events(programming_urls):
 
                 link_element = show.find("a", href=True)
                 if link_element:
-                    link = "https://www.operadeparis.fr" + link_element["href"]
+                    link = link_element["href"]
                 else:
                     link = None  # important : ne pas mettre "Unknown"
 
-                date_match = re.search(r"(du\s\d{1,2}\s+au\s+\d{1,2}\s+[^\s]+\s+\d{4})", raw_text)
+                date_match = re.search(r"(du\s\d{1,2}.*?\d{4}|le\s\d{1,2}.*?\d{4})", raw_text
+)
+
                 dates = date_match.group(1) if date_match else "Unknown"
 
                 location = "Palais Garnier" if "Palais Garnier" in raw_text else \
