@@ -122,7 +122,7 @@ def scrape_events(programming_urls):
 
                 link_element = show.find("a", href=True)
                 if link_element:
-                    link = "https://www.operadeparis.fr" + link_element["href"]
+                    link = link_element["href"]
                 else:
                     link = None  # important : ne pas mettre "Unknown"
 
