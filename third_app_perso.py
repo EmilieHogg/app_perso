@@ -126,16 +126,17 @@ def scrape_events(programming_urls):
                 else:
                     link = None  # important : ne pas mettre "Unknown"
 
-                # Improved date regex: covers "du 10 au 15 mars 2026" OR single date "10 mars 2026"
-                date_match = re.search(
-                    r"(du\s\d{1,2}\s+au\s+\d{1,2}\s+[^\s]+\s+\d{4}|\d{1,2}\s+[^\s]+\s+\d{4})",
-                    raw_text,
-                )
+                date_match = re.search(r"(du\s+\d{1,2}\s+[^\s]+\s+au\s+\d{1,2}\s+[^\s]+|\d{1,2}\s+[^\s]+)",raw_text
+)
                 dates = date_match.group(1) if date_match else "Unknown"
+                    
+
+               
                 
 
-                location = "Palais Garnier" if "Palais Garnier" in raw_text else \
-                "Opéra Bastille" if "Opéra Bastille" in raw_text else "Unknown"
+                
+                location = ("Bobigny" if "Bobigny" in raw_text else "Philharmonie de Paris" if "Philharmonie de Paris" in raw_text else "Studio Bastille" if "Studio Bastille" in raw_text else "Palais Garnier" if "Palais Garnier" in raw_text else "Opéra Bastille" if "Opéra Bastille" in raw_text else "Amphithéâtre" if "Amphithéâtre" in raw_text else "Unknown")
+                
 
                 title = raw_text
                 
