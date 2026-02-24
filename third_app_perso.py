@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import TimeoutException
 from bs4 import BeautifulSoup
 from webdriver_manager.chrome import ChromeDriverManager
 import requests
@@ -83,14 +84,22 @@ st.markdown(
 
 '''base_url = "https://www.operadeparis.fr"
 programming_url = f"{base_url}/programmation/saison-25-26/opera"'''
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, WebDriverException
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import re
 
 programming = ["opera", "ballet"]
 base_url = "https://www.operadeparis.fr/programmation/saison-25-26"
 programming_urls = [f"{base_url}/{p}" for p in programming]
 
 print(programming_urls)
-
-  
 
 
 def scrape_events(programming_urls):
@@ -102,90 +111,76 @@ def scrape_events(programming_urls):
 
     events = []
 
-    for url in programming_urls:
-        driver = None
-        try:
-            driver = webdriver.Chrome(options=options)
+    # Initialize driver once
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
+    try:
+        for url in programming_urls:
             driver.get(url)
-            time.sleep(3)
+            try:
+                # Wait up to 10 seconds for at least one show
+                WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "li.show"))
+                )
+            except TimeoutException:
+                print(f"No shows found on {url}")
+                continue  # skip to next url
 
-            html = driver.page_source  # get page HTML from Selenium driver
-            soup = BeautifulSoup(html, "html.parser")  # create soup object
-
+            html = driver.page_source
+            soup = BeautifulSoup(html, "html.parser")
             show_elements = soup.find_all("li", class_="show")
-            print("Found shows:", len(show_elements))
+            print(f"Found shows on {url}: {len(show_elements)}")
 
-        
-                  
             for show in show_elements:
                 raw_text = show.get_text(separator=" ", strip=True)
-
+                full_dates = "Unknown"
                 link_element = show.find("a", href=True)
-                if link_element:
-                    link = link_element["href"]
-                else:
-                    link = None  # important : ne pas mettre "Unknown"
+                link = link_element["href"] if link_element else None
 
-                date_match = re.search(r"(du\s+\d{1,2}\s+[^\s]+\s+au\s+\d{1,2}\s+[^\s]+|\d{1,2}\s+[^\s]+)",raw_text
-)
-                dates = date_match.group(1) if date_match else "Unknown"
-                    
+                # Extract month & year
+                month_year_match = re.search(r"(janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4}", raw_text)
+                month_year = month_year_match.group(0) if month_year_match else ""
 
-               
-                
+                # Extract day range
+                day_range_match = re.search(r"(\d{1,2}\s*au\s*\d{1,2})", raw_text)
+                day_range = day_range_match.group(1) if day_range_match else ""
 
-                
-                location = ("Bobigny" if "Bobigny" in raw_text else "Philharmonie de Paris" if "Philharmonie de Paris" in raw_text else "Studio Bastille" if "Studio Bastille" in raw_text else "Palais Garnier" if "Palais Garnier" in raw_text else "Opéra Bastille" if "Opéra Bastille" in raw_text else "Amphithéâtre" if "Amphithéâtre" in raw_text else "Unknown")
-                
+                if day_range and month_year:
+                    full_dates = f"{day_range} {month_year}"
 
-                title = raw_text
-                
-                if dates != "Unknown":
-                    title = title.replace(dates, "")
-                    title = title.replace(location, "").replace("Voir les disponibilités", "").strip()
+                # Determine location
+                location = ("Bobigny" if "Bobigny" in raw_text else
+                            "Philharmonie de Paris" if "Philharmonie de Paris" in raw_text else
+                            "Studio Bastille" if "Studio Bastille" in raw_text else
+                            "Palais Garnier" if "Palais Garnier" in raw_text else
+                            "Opéra Bastille" if "Opéra Bastille" in raw_text else
+                            "Amphithéâtre" if "Amphithéâtre" in raw_text else
+                            "Unknown")
 
                 # Clean title
                 title = raw_text
-                for part in [dates, location, "Voir les disponibilités"]:
+                for part in [full_dates, location, "Voir les disponibilités"]:
                     if part and part != "Unknown":
-                        title = title.replace(part, "")
-                title = title.strip()
+                        title = title.replace(part, "").strip()
 
                 events.append({
                     "title": title,
-                    "dates": dates,
+                    "dates": full_dates,
                     "location": location,
                     "url": link
-                    })
+                })
 
-            print(f"Loaded {url} with {len(show_elements)} events")
+    except WebDriverException as e:
+        print(f"❌ Selenium failed: {e}")
 
-        except WebDriverException as e:
-
-            print(f"❌ Selenium failed on {url}: {e}")
-
-        finally:
-
-            if driver:
-                driver.quit()
+    finally:
+        driver.quit()
 
     return events
 
-    '''if "–" in title:
-                title_part, date_part = map(str.strip, title.split("–", 1))
-    else:
-                title_part, date_part = title, "Unknown"
 
-    events.append({
-                "title": title_part,
-                "dates": date_part,
-                "location": "Opéra de Paris",
-                "url": link
-    })'''
-
+# Scrape events
 events = scrape_events(programming_urls)
-
-
 
 # Remove duplicates
 unique_events = []
@@ -196,7 +191,6 @@ for e in events:
         seen_urls.add(e["url"])
 
 # Display results
-
 for e in unique_events:
     print(f"Titre  : {e['title']}")
     print(f"Dates  : {e['dates']}")
