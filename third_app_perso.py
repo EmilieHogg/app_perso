@@ -137,16 +137,20 @@ def scrape_events(programming_urls):
                 link_element = show.find("a", href=True)
                 link = link_element["href"] if link_element else None
 
-                # Extract month & year
-                month_year_match = re.search(r"(janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4}", raw_text)
-                month_year = month_year_match.group(0) if month_year_match else ""
+                  # Regex patterns for multiple date formats
+                patterns = [
+                    r"(du\s+\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*au\s*\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4})",
+                    r"(du\s+\d{1,2}\s*au\s*\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4})",
+                    r"(le\s+\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4}(?:\s+à\s*\d{1,2}h\d{2})?)"
+                ]
 
-                # Extract day range
-                day_range_match = re.search(r"(\d{1,2}\s*au\s*\d{1,2})", raw_text)
-                day_range = day_range_match.group(1) if day_range_match else ""
+                matches = []
+                for pattern in patterns:
+                    matches += re.findall(pattern, raw_text)
 
-                if day_range and month_year:
-                    full_dates = f"{day_range} {month_year}"
+                if matches:
+                    full_dates = " ; ".join(matches)
+
 
                 # Determine location
                 location = ("Bobigny" if "Bobigny" in raw_text else
@@ -159,7 +163,7 @@ def scrape_events(programming_urls):
 
                 # Clean title
                 title = raw_text
-                for part in [full_dates, location, "Voir les disponibilités"]:
+                for part in [full_dates, location, "Voir les disponibilités", "Réserver"]:
                     if part and part != "Unknown":
                         title = title.replace(part, "").strip()
 
