@@ -55,9 +55,11 @@ try:
     tables = pd.read_html(html)
     print(f"{len(tables)} tables trouvées sur la page Wikipédia CAC 40.")
 
+    
+
     # Vérifie toutes les tables pour trouver celle du CAC 40
     for i, table in enumerate(tables):
-        if "Entreprise" in table.columns or "Nom" in table.columns:
+        if "Société" in table.columns or "Mnémo" in table.columns:
             cac40_table = table
             print(f"Table CAC40 trouvée à l'index {i} : {table.shape[0]} lignes, {table.shape[1]} colonnes")
             break
