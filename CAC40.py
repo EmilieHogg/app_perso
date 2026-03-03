@@ -4,6 +4,7 @@
 import subprocess
 import sys
 
+
 # -----------------------------
 # Fonction pour installer un module si nécessaire
 # -----------------------------
@@ -28,7 +29,9 @@ import requests
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 import urllib.parse
+import datetime as dt
 
+today = dt.datetime.today().strftime('%Y-%m-%d')
 # -----------------------------
 # URL Wikipédia CAC40
 # -----------------------------
@@ -73,3 +76,15 @@ except HTTPError as e:
     print(f"Erreur HTTP: {e.code} {e.reason}")
 except Exception as e:
     print(f"Erreur: {e}")
+
+print(cac40_table.columns.tolist())
+tickers = list(cac40_table.Mnémo)
+print(tickers)
+
+
+today = dt.datetime.today().strftime('%Y-%m-%d')
+tickers_yahoo = [ticker + ".PA" for ticker in tickers]
+tickers_yahoo = ["MT.AS" if t == "MT.PA" else t for t in tickers_yahoo]
+data =yf.download(tickers_yahoo, start = '2020-01-01', end =today)
+closing_price = data['Close']
+print(closing_price)
