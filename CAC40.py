@@ -83,8 +83,11 @@ print(tickers)
 
 
 today = dt.datetime.today().strftime('%Y-%m-%d')
+
 tickers_yahoo = [ticker + ".PA" for ticker in tickers]
 tickers_yahoo = ["MT.AS" if t == "MT.PA" else t for t in tickers_yahoo]
 data =yf.download(tickers_yahoo, start = '2020-01-01', end =today)
 closing_price = data['Close']
 print(closing_price)
+
+closing_price.to_csv('CAC40')

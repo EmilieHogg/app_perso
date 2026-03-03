@@ -18,9 +18,7 @@ from bs4 import BeautifulSoup
 import streamlit as st
 import time
 import re
-
-
-
+import pandas as pd
 import requests
 import streamlit as st
 
@@ -216,3 +214,34 @@ for e in unique_events:
 
                     
 st.write(f"Total evenements ; {len(unique_events)}")
+
+st. subheader ("Valeurs du CAC 4O")
+CAC40 = pd.read_csv("/Users/emiliehogg/Documents/Documents - MacBook Air de Emilie/GitHub/app_perso/CAC40")
+print(CAC40)
+
+
+
+
+
+
+#st.write(CAC40[[penultimate, last, "Variation", "Tendance"]])
+# Calculate variation and display arrow
+#CAC40["Variation"] = CAC40[last] - CAC40[penultimate]
+#CAC40["Tendance"] = CAC40["Variation"].apply(lambda x: "↑" if x > 0 else ("↓" if x < 0 else "→"))
+
+CAC40_transposed = CAC40.set_index(CAC40.columns[0]).T
+
+
+
+# Get last two columns
+penultimate = CAC40_transposed.columns[-2]
+last = CAC40_transposed.columns[-1]
+
+# Calculate variation and display arrow
+CAC40_transposed["Variation"] = CAC40_transposed[last] - CAC40_transposed[penultimate]
+CAC40_transposed["Tendance"] = CAC40_transposed["Variation"].apply(lambda x: "↑" if x > 0 else ("↓" if x < 0 else "→"))
+
+print (CAC40_transposed[[penultimate, last, "Variation", "Tendance"]])
+
+#for ticker in yahoo.pickers: 
+st.write(CAC40_transposed[[penultimate, last, "Variation", "Tendance"]])
