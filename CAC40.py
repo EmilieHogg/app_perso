@@ -77,9 +77,12 @@ except HTTPError as e:
 except Exception as e:
     print(f"Erreur: {e}")
 
-print(cac40_table.columns.tolist())
-tickers = list(cac40_table.Mnémo)
+"""print(cac40_table.columns.tolist())
+tickers = cac40_table.Mnémo.dropna().unique()
+tickers = list(tickers)
 print(tickers)
+companies = cac40_table[['Société', 'Mnémo']].dropna()
+print(companies)
 
 
 today = dt.datetime.today().strftime('%Y-%m-%d')
@@ -88,6 +91,78 @@ tickers_yahoo = [ticker + ".PA" for ticker in tickers]
 tickers_yahoo = ["MT.AS" if t == "MT.PA" else t for t in tickers_yahoo]
 data =yf.download(tickers_yahoo, start = '2020-01-01', end =today)
 closing_price = data['Close']
-print(closing_price)
+print(closing_price)'''
 
-closing_price.to_csv('CAC40')
+closing_price.to_csv('CAC40')"""
+
+
+
+st.set_page_config(page_title="CAC40 Dashboard", layout="wide")
+
+st.title("📈 CAC 40 Dashboard")
+
+# Load CAC40 table
+
+@st.cache_data
+def load_cac40():
+    url = "https://fr.wikipedia.org/wiki/CAC_40"
+    tables = pd.read_html(url)
+    cac40_table = tables[2]
+    return cac40_table[["Société", "Mnémo"]].dropna().drop_duplicates()
+
+companies_df = load_cac40()
+
+st.subheader("CAC40 Companies")
+st.dataframe(companies_df)
+
+
+# Build ticker list
+
+tickers = companies_df["Mnémo"].tolist()
+tickers_yahoo = [t + ".PA" for t in tickers]
+tickers_yahoo = ["MT.AS" if t == "MT.PA" else t for t in tickers_yahoo]
+
+
+# Download prices
+
+@st.cache_data
+def load_prices(tickers):
+    today = dt.datetime.today().strftime('%Y-%m-%d')
+    data = yf.download(tickers, start="2020-01-01", end=today)
+    return data["Close"]
+
+closing_price = load_prices(tickers_yahoo)
+
+# Clean column names
+closing_price.columns = [c.replace(".PA", "") for c in closing_price.columns]
+
+# Mapping ticker -> Société
+# -----------------------------
+ticker_to_company = dict(companies_df.values)
+
+
+# Sidebar selector
+
+selected_company = st.sidebar.selectbox(
+    "Select a Company",
+    companies_df["Société"]
+)
+
+selected_ticker = companies_df.loc[
+    companies_df["Société"] == selected_company,
+    "Mnémo"
+].values[0]
+
+# Show latest close
+
+latest_price = closing_price[selected_ticker].iloc[-1]
+
+st.metric(
+    label=f"{selected_company} Latest Close",
+    value=f"{latest_price:.2f} €"
+)
+# Price chart
+
+st.subheader(f"{selected_company} Price History")
+
+st.line_chart(closing_price[selected_ticker])
