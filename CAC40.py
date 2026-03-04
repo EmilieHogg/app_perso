@@ -3,12 +3,12 @@
 
 import subprocess
 import sys
-
+import streamlit as st
 
 # -----------------------------
 # Fonction pour installer un module si nécessaire
 # -----------------------------
-def install_package(package_name):
+'''def install_package(package_name):
     try:
         __import__(package_name)
     except ImportError:
@@ -16,8 +16,8 @@ def install_package(package_name):
         subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
 
 # Installer les packages nécessaires
-for pkg in ["pandas", "numpy", "yfinance", "requests", "lxml", "beautifulsoup4"]:
-    install_package(pkg)
+for pkg in ["pandas", "streamlit", "numpy", "yfinance", "requests", "lxml", "beautifulsoup4"]:
+    install_package(pkg)'''
 
 # -----------------------------
 # Imports principaux
@@ -97,23 +97,29 @@ closing_price.to_csv('CAC40')"""
 
 
 
-st.set_page_config(page_title="CAC40 Dashboard", layout="wide")
+#st.set_page_config(page_title="CAC40 Dashboard", layout="wide")
 
-st.title("📈 CAC 40 Dashboard")
+#st.title("📈 CAC 40 Dashboard")
 
 # Load CAC40 table
 
-@st.cache_data
 def load_cac40():
     url = "https://fr.wikipedia.org/wiki/CAC_40"
-    tables = pd.read_html(url)
+
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()  # raise error if blocked
+    tables = pd.read_html(response.text)
     cac40_table = tables[2]
     return cac40_table[["Société", "Mnémo"]].dropna().drop_duplicates()
 
 companies_df = load_cac40()
 
-st.subheader("CAC40 Companies")
-st.dataframe(companies_df)
+#st.subheader("CAC40 Companies")
+#st.dataframe(companies_df)
 
 
 # Build ticker list
@@ -136,10 +142,23 @@ closing_price = load_prices(tickers_yahoo)
 # Clean column names
 closing_price.columns = [c.replace(".PA", "") for c in closing_price.columns]
 
+
 # Mapping ticker -> Société
 # -----------------------------
 ticker_to_company = dict(companies_df.values)
 
+closing_price.columns = [
+    ticker_to_company.get(col.replace(".PA", ""), col)
+    for col in closing_price.columns
+]
+
+# Rename columns from ticker to company name
+closing_price_named = closing_price.rename(columns=ticker_to_company)
+print (closing_price_named.head())
+
+
+
+closing_price_named.to_csv("CAC40_closing_prices_named.csv")
 
 # Sidebar selector
 
@@ -157,12 +176,12 @@ selected_ticker = companies_df.loc[
 
 latest_price = closing_price[selected_ticker].iloc[-1]
 
-st.metric(
-    label=f"{selected_company} Latest Close",
-    value=f"{latest_price:.2f} €"
-)
+#st.metric(
+    #label=f"{selected_company} Latest Close",
+    #value=f"{latest_price:.2f} €"
+#)
 # Price chart
 
-st.subheader(f"{selected_company} Price History")
+#st.subheader(f"{selected_company} Price History")
 
-st.line_chart(closing_price[selected_ticker])
+#st.line_chart(closing_price[selected_ticker])

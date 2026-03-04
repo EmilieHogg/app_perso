@@ -216,11 +216,23 @@ for e in unique_events:
 st.write(f"Total evenements ; {len(unique_events)}")
 
 st. subheader ("Valeurs du CAC 4O")
-CAC40 = pd.read_csv("/Users/emiliehogg/Documents/Documents - MacBook Air de Emilie/GitHub/app_perso/CAC40")
-print(CAC40)
+#CAC40 = pd.read_csv("/Users/emiliehogg/Documents/Documents - MacBook Air de Emilie/GitHub/app_perso/CAC40")
+#print(CAC40)
 
 
 
+# third_app_perso.py
+import streamlit as st
+#from CAC40 import load_cac40
+
+
+@st.cache_data
+def get_companies():
+    return load_cac40()
+
+companies_df = get_companies()
+
+st.dataframe(companies_df, height=400)
 
 
 
