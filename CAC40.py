@@ -160,7 +160,7 @@ ticker_to_company = {
 closing_price_named = closing_price_clean.rename(columns=ticker_to_company)
 print (closing_price_named.head())
 
-
+print(closing_price_named.columns)
 
 closing_price_named.to_csv("CAC40_closing_prices_named.csv")
 

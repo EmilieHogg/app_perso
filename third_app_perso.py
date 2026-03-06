@@ -216,8 +216,6 @@ for e in unique_events:
 st.write(f"Total evenements ; {len(unique_events)}")
 
 st. subheader ("Valeurs du CAC 4O")
-#CAC40 = pd.read_csv("/Users/emiliehogg/Documents/Documents - MacBook Air de Emilie/GitHub/app_perso/CAC40")
-#print(CAC40)
 
 
 
@@ -238,24 +236,9 @@ df = pd.read_csv(file_path)
 print(df)
 
 
-'''@st.cache_data
-def get_companies():
-    return load_cac40()
 
-companies_df = get_companies()
-
-st.dataframe(companies_df, height=400)'''
-
-
-
-#st.write(CAC40[[penultimate, last, "Variation", "Tendance"]])
-# Calculate variation and display arrow
-#CAC40["Variation"] = CAC40[last] - CAC40[penultimate]
-#CAC40["Tendance"] = CAC40["Variation"].apply(lambda x: "↑" if x > 0 else ("↓" if x < 0 else "→"))
-
-#CAC40_transposed = CAC40.set_index(CAC40.columns[0]).T
-
-CAC40_transposed_closing_price_named = df.set_index(df.columns[0]).T
+#CAC40_transposed_closing_price_named = df.set_index(df.columns[0]).T
+CAC40_transposed_closing_price_named = df.columns[0].T
 
 # Get last two columns
 penultimate = CAC40_transposed_closing_price_named.columns[-2]
@@ -269,3 +252,31 @@ print (CAC40_transposed_closing_price_named[[penultimate, last, "Variation", "Te
 
 #for ticker in yahoo.pickers: 
 st.write(CAC40_transposed_closing_price_named[[penultimate, last, "Variation", "Tendance"]])
+
+# Sidebar selector
+print(CAC40_transposed_closing_price_named.index)
+print(CAC40_transposed_closing_price_named["ticker_to_company"])
+
+selected_company = st.sidebar.selectbox(
+    "Select a Company",
+    CAC40_transposed_closing_price_named["ticker_to_company"]
+)
+
+selected_ticker = CAC40_transposed_closing_price_named.loc[
+    CAC40_transposed_closing_price_named["ticker_to_company"] == selected_company,
+    "ticker_to_company"
+].values[0]
+
+# Show latest close
+
+latest_price = CAC40_transposed_closing_price_named[selected_ticker].iloc[-1]
+
+st.metric(
+    #label=f"{selected_company} Latest Close",
+    #value=f"{latest_price:.2f} €"
+)
+# Price chart
+
+st.subheader(f"{selected_company} Price History")
+
+st.line_chart(CAC40_transposed_closing_price_named[selected_ticker])
