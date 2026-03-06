@@ -223,16 +223,28 @@ st. subheader ("Valeurs du CAC 4O")
 
 # third_app_perso.py
 import streamlit as st
-#from CAC40 import load_cac40
+from CAC40 import load_cac40
+import os
+
+# File name next to the script
+filename = "CAC40_closing_prices_named.csv"  # replace with your file name
+script_dir = os.path.dirname(os.path.abspath("CAC40_closing_prices_named.csv"))
+
+# Full path
+file_path = os.path.join(script_dir, "CAC40_closing_prices_named.csv")
+
+# Load into a DataFrame
+df = pd.read_csv(file_path)
+print(df)
 
 
-@st.cache_data
+'''@st.cache_data
 def get_companies():
     return load_cac40()
 
 companies_df = get_companies()
 
-st.dataframe(companies_df, height=400)
+st.dataframe(companies_df, height=400)'''
 
 
 
@@ -241,19 +253,19 @@ st.dataframe(companies_df, height=400)
 #CAC40["Variation"] = CAC40[last] - CAC40[penultimate]
 #CAC40["Tendance"] = CAC40["Variation"].apply(lambda x: "↑" if x > 0 else ("↓" if x < 0 else "→"))
 
-CAC40_transposed = CAC40.set_index(CAC40.columns[0]).T
+#CAC40_transposed = CAC40.set_index(CAC40.columns[0]).T
 
-
+CAC40_transposed_closing_price_named = df.set_index(df.columns[0]).T
 
 # Get last two columns
-penultimate = CAC40_transposed.columns[-2]
-last = CAC40_transposed.columns[-1]
+penultimate = CAC40_transposed_closing_price_named.columns[-2]
+last = CAC40_transposed_closing_price_named.columns[-1]
 
 # Calculate variation and display arrow
-CAC40_transposed["Variation"] = CAC40_transposed[last] - CAC40_transposed[penultimate]
-CAC40_transposed["Tendance"] = CAC40_transposed["Variation"].apply(lambda x: "↑" if x > 0 else ("↓" if x < 0 else "→"))
+CAC40_transposed_closing_price_named["Variation"] = CAC40_transposed_closing_price_named[last] - CAC40_transposed_closing_price_named[penultimate]
+CAC40_transposed_closing_price_named["Tendance"] = CAC40_transposed_closing_price_named["Variation"].apply(lambda x: "↑" if x > 0 else ("↓" if x < 0 else "→"))
 
-print (CAC40_transposed[[penultimate, last, "Variation", "Tendance"]])
+print (CAC40_transposed_closing_price_named[[penultimate, last, "Variation", "Tendance"]])
 
 #for ticker in yahoo.pickers: 
-st.write(CAC40_transposed[[penultimate, last, "Variation", "Tendance"]])
+st.write(CAC40_transposed_closing_price_named[[penultimate, last, "Variation", "Tendance"]])

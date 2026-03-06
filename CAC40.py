@@ -8,7 +8,7 @@ import streamlit as st
 # -----------------------------
 # Fonction pour installer un module si nécessaire
 # -----------------------------
-'''def install_package(package_name):
+def install_package(package_name):
     try:
         __import__(package_name)
     except ImportError:
@@ -17,7 +17,7 @@ import streamlit as st
 
 # Installer les packages nécessaires
 for pkg in ["pandas", "streamlit", "numpy", "yfinance", "requests", "lxml", "beautifulsoup4"]:
-    install_package(pkg)'''
+    install_package(pkg)
 
 # -----------------------------
 # Imports principaux
@@ -147,13 +147,17 @@ closing_price.columns = [c.replace(".PA", "") for c in closing_price.columns]
 # -----------------------------
 ticker_to_company = dict(companies_df.values)
 
-closing_price.columns = [
-    ticker_to_company.get(col.replace(".PA", ""), col)
-    for col in closing_price.columns
+closing_price_clean = closing_price.copy()
+closing_price_clean.columns = [
+    col.replace(".PA", "").strip()
+    for col in closing_price_clean.columns
 ]
-
+ticker_to_company = {
+    k.strip(): v
+    for k, v in companies_df[["Mnémo", "Société"]].values
+}
 # Rename columns from ticker to company name
-closing_price_named = closing_price.rename(columns=ticker_to_company)
+closing_price_named = closing_price_clean.rename(columns=ticker_to_company)
 print (closing_price_named.head())
 
 
