@@ -21,6 +21,7 @@ import re
 import pandas as pd
 import requests
 import streamlit as st
+import unicodedata
 
 api_key = "e8908a3217f223d1a784c8a38643e51f"
 
@@ -237,46 +238,37 @@ print(df)
 
 
 
-#CAC40_transposed_closing_price_named = df.set_index(df.columns[0]).T
-CAC40_transposed_closing_price_named = df.columns[0].T
+CAC40_transposed_closing_price_named = df.set_index("Date").T
+CAC40_transposed_closing_price_named = df.set_index("Date")
+#CAC40_transposed_closing_price_named = df.T
 
-# Get last two columns
+print(CAC40_transposed_closing_price_named.head())
+print(CAC40_transposed_closing_price_named.columns)
+print(CAC40_transposed_closing_price_named.index)
+
+
+
+# Streamlit selectbox for companies only
+company_names = CAC40_transposed_closing_price_named.columns  # all columns are companies
+
+selected_company = st.sidebar.selectbox(
+    "Select a company",
+    company_names
+)
+
+# Access last two columns dynamically
 penultimate = CAC40_transposed_closing_price_named.columns[-2]
 last = CAC40_transposed_closing_price_named.columns[-1]
 
-# Calculate variation and display arrow
-CAC40_transposed_closing_price_named["Variation"] = CAC40_transposed_closing_price_named[last] - CAC40_transposed_closing_price_named[penultimate]
-CAC40_transposed_closing_price_named["Tendance"] = CAC40_transposed_closing_price_named["Variation"].apply(lambda x: "↑" if x > 0 else ("↓" if x < 0 else "→"))
+# Convert last two columns to numeric
+CAC40_transposed_closing_price_named[penultimate] = pd.to_numeric(CAC40_transposed_closing_price_named[penultimate], errors='coerce')
+CAC40_transposed_closing_price_named[last] = pd.to_numeric(CAC40_transposed_closing_price_named[last], errors='coerce')
 
-print (CAC40_transposed_closing_price_named[[penultimate, last, "Variation", "Tendance"]])
 
-#for ticker in yahoo.pickers: 
-st.write(CAC40_transposed_closing_price_named[[penultimate, last, "Variation", "Tendance"]])
-
-# Sidebar selector
-print(CAC40_transposed_closing_price_named.index)
-print(CAC40_transposed_closing_price_named["ticker_to_company"])
-
-selected_company = st.sidebar.selectbox(
-    "Select a Company",
-    CAC40_transposed_closing_price_named["ticker_to_company"]
-)
-
-selected_ticker = CAC40_transposed_closing_price_named.loc[
-    CAC40_transposed_closing_price_named["ticker_to_company"] == selected_company,
-    "ticker_to_company"
-].values[0]
-
-# Show latest close
-
-latest_price = CAC40_transposed_closing_price_named[selected_ticker].iloc[-1]
+latest_price = CAC40_transposed_closing_price_named[selected_company].iloc[-1]
+st.write(f"Latest price: {latest_price:.2f} €")
 
 st.metric(
-    #label=f"{selected_company} Latest Close",
-    #value=f"{latest_price:.2f} €"
+label=f"{selected_company} Latest Close",
+value=f"{latest_price:.2f} €"
 )
-# Price chart
-
-st.subheader(f"{selected_company} Price History")
-
-st.line_chart(CAC40_transposed_closing_price_named[selected_ticker])
