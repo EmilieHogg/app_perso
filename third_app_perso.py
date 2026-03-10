@@ -225,50 +225,53 @@ import streamlit as st
 from CAC40 import load_cac40
 import os
 
-# File name next to the script
-filename = "CAC40_closing_prices_named.csv"  # replace with your file name
-script_dir = os.path.dirname(os.path.abspath("CAC40_closing_prices_named.csv"))
+import os
+import pandas as pd
+import streamlit as st
 
-# Full path
-file_path = os.path.join(script_dir, "CAC40_closing_prices_named.csv")
+import os
+import pandas as pd
+import streamlit as st
 
-# Load into a DataFrame
-df = pd.read_csv(file_path)
-print(df)
+# ── Page config ────────────────────────────────────────────
+st.set_page_config(page_title="CAC 40", layout="wide")
 
+# ── Load Data ──────────────────────────────────────────────
+filename = "CAC40_closing_prices_named.csv"
+try:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    base_dir = os.getcwd()
 
+file_path = os.path.join(base_dir, filename)
 
-CAC40_transposed_closing_price_named = df.set_index("Date").T
-CAC40_transposed_closing_price_named = df.set_index("Date")
-#CAC40_transposed_closing_price_named = df.T
+try:
+    df = pd.read_csv(file_path)
+except FileNotFoundError:
+    st.error(f"❌ File not found: {file_path}")
+    st.stop()
 
-print(CAC40_transposed_closing_price_named.head())
-print(CAC40_transposed_closing_price_named.columns)
-print(CAC40_transposed_closing_price_named.index)
+# ── Prepare DataFrame ──────────────────────────────────────
+CAC40_df = df.set_index("Date").apply(pd.to_numeric, errors='coerce')
+company_names = CAC40_df.columns.tolist()
 
+if not company_names:
+    st.error("❌ No companies found in CSV.")
+    st.stop()
 
+# ── Sidebar — ONE selectbox only ───────────────────────────
+st.sidebar.title("📊 CAC 40 Dashboard")
+selected_company = st.sidebar.selectbox("Select a company", company_names)
 
-# Streamlit selectbox for companies only
-company_names = CAC40_transposed_closing_price_named.columns  # all columns are companies
+# ── Main Page ──────────────────────────────────────────────
+st.title("CAC 40 Closing Prices")
 
-selected_company = st.sidebar.selectbox(
-    "Select a company",
-    company_names
-)
-
-# Access last two columns dynamically
-penultimate = CAC40_transposed_closing_price_named.columns[-2]
-last = CAC40_transposed_closing_price_named.columns[-1]
-
-# Convert last two columns to numeric
-CAC40_transposed_closing_price_named[penultimate] = pd.to_numeric(CAC40_transposed_closing_price_named[penultimate], errors='coerce')
-CAC40_transposed_closing_price_named[last] = pd.to_numeric(CAC40_transposed_closing_price_named[last], errors='coerce')
-
-
-latest_price = CAC40_transposed_closing_price_named[selected_company].iloc[-1]
-st.write(f"Latest price: {latest_price:.2f} €")
+latest_price = CAC40_df[selected_company].dropna().iloc[-1]
 
 st.metric(
-label=f"{selected_company} Latest Close",
-value=f"{latest_price:.2f} €"
+    label=f"{selected_company} — Latest Close",
+    value=f"{latest_price:.2f} €"
 )
+
+st.subheader(f"{selected_company} — Price History")
+st.line_chart(CAC40_df[selected_company])
