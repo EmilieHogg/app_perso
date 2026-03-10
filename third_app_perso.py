@@ -22,6 +22,8 @@ import pandas as pd
 import requests
 import streamlit as st
 import unicodedata
+import json
+from streamlit_lottie import st_lottie
 
 api_key = "e8908a3217f223d1a784c8a38643e51f"
 
@@ -63,6 +65,21 @@ for city in cities:
 
 
 
+def load_lottiefile(filepath):
+    with open(filepath, "r") as f:
+        return json.load(f)
+
+# Load animation
+lottie_confetti = load_lottiefile("confetti.json")
+
+# Placeholder for dynamic content
+placeholder = st.empty()
+
+# 1️⃣ Show confetti first
+st_lottie(lottie_confetti, speed=1, loop=False)
+
+# Wait for confetti to play
+time.sleep(2.5)  # adjust to match animation length
 
 
 st.write(" Welcome") 
