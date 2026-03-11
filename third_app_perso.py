@@ -25,11 +25,66 @@ import unicodedata
 import json
 from streamlit_lottie import st_lottie
 
+# ── Page config ────────────────────────────────────────────
+st.set_page_config(page_title="Tableau de bord interactif", layout="wide")
+
+ # Load lottie animation
+def load_lottiefile(filepath):
+        with open(filepath, "r") as f:
+            return json.load(f)
+
+lottie_confetti = load_lottiefile("confetti.json")
+
+    # Placeholder
+placeholder = st.empty()
+
+    # 1️⃣ Show confetti
+with placeholder.container():
+        st_lottie(lottie_confetti, speed=1, loop=False)
+
+    # Wait for animation
+time.sleep(2.5)
+
+    # 2️⃣ Replace with welcome message + fade effect
+with placeholder.container():
+    st.markdown(
+            """
+            <style>
+            .fade-in {
+                animation: fadeIn 2s ease-in;
+                text-align: center;
+            }
+
+            @keyframes fadeIn {
+                0% {opacity:0; transform: translateY(20px);}
+                100% {opacity:1; transform: translateY(0);}
+            }
+            </style>
+
+            <div class="fade-in">
+                <h1>Bonjour Jean-Pol 👋</h1>
+                <h3>Bienvenue sur ton <span style="color:#ff4b4b;">tableau de bord interactif</span> !</h3>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+
+
+
+
+
+# Delay before showing weather (in seconds)
+time.sleep(2.5)
+
+
 api_key = "e8908a3217f223d1a784c8a38643e51f"
 
 cities = ["Paris", "Andernos-les-Bains"]
 
 def get_weather(city):
+    #st.markdown("<h2 style='text-align:center'>🌤️ Météo par ville</h2>", unsafe_allow_html=True)
     url = "https://api.openweathermap.org/data/2.5/weather"
     params = {
         "q": city,
@@ -46,60 +101,53 @@ def get_weather(city):
         "temp": data["main"]["temp"],
         "icon": data["weather"][0]["icon"]
     }
+# Overwrite the placeholder — welcome disappears
+with placeholder.container():
+    st.subheader("🌤️ Météo par ville")
 
+    # 3 columns: left spacer, center content, right spacer
+    left, center, right = st.columns([1, 3, 1])
+
+    with center:
+        # Loop over cities and display each
+        for city in cities:
+            weather = get_weather(city)
+            st.markdown(
+                f"""
+                <div style='text-align:center; display:inline-block; margin: 0 30px;'>
+                    <h3>{weather['city']}</h3>
+                    <img src="https://openweathermap.org/img/wn/{weather['icon']}@2x.png" width="80">
+                    <p style='font-size:20px'>{weather['temp']} °C</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 def icon_url(icon_id):
     return f"https://openweathermap.org/img/wn/{icon_id}@2x.png"
 
-st.title("🌤️ Météo par ville")
+# Overwrite welcome placeholder — this makes the welcome disappear
+'''with placeholder.container():
 
-for city in cities:
-    weather = get_weather(city)
-
-    col1, col2 = st.columns([1, 3])
-    with col1:
-        st.image(icon_url(weather["icon"]), width=80)
-    with col2:
-        st.write(f"**{weather['city']}**")
-        st.write(f"{weather['temp']} °C")
-
-
-
-
-def load_lottiefile(filepath):
-    with open(filepath, "r") as f:
-        return json.load(f)
-
-# Load animation
-lottie_confetti = load_lottiefile("confetti.json")
-
-# Placeholder for dynamic content
-placeholder = st.empty()
-
-# 1️⃣ Show confetti first
-st_lottie(lottie_confetti, speed=1, loop=False)
-
-# Wait for confetti to play
-time.sleep(2.5)  # adjust to match animation length
-
-
-st.write(" Welcome") 
-
-st.image("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
-
-st.title("Bonjour Jean-Pol")
-st.markdown(
-    """ 
+    st.subheader("🌤️ Météo par ville")
     
 
-    **Bienvenue sur ton :rainbow[tableau de bord] interactif!**
-    
-    """
-)
+
+    for city in cities:
+        weather = get_weather(city)
+
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            st.image(icon_url(weather["icon"]), width=80)
+        with col2:
+            st.write(f"**{weather['city']}**")
+            st.write(f"{weather['temp']} °C")'''
 
 
 
-'''base_url = "https://www.operadeparis.fr"
-programming_url = f"{base_url}/programmation/saison-25-26/opera"'''
+   
+
+
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
