@@ -78,73 +78,36 @@ with placeholder.container():
 # Delay before showing weather (in seconds)
 time.sleep(2.5)
 
-
+# 2️⃣ Weather Section fully centered
 api_key = "e8908a3217f223d1a784c8a38643e51f"
-
 cities = ["Paris", "Andernos-les-Bains"]
 
 def get_weather(city):
-    #st.markdown("<h2 style='text-align:center'>🌤️ Météo par ville</h2>", unsafe_allow_html=True)
     url = "https://api.openweathermap.org/data/2.5/weather"
-    params = {
-        "q": city,
-        "appid": api_key,
-        "units": "metric",
-        "lang": "fr"
-    }
+    params = {"q": city, "appid": api_key, "units": "metric", "lang": "fr"}
     r = requests.get(url, params=params)
     r.raise_for_status()
     data = r.json()
+    return {"city": city, "temp": data["main"]["temp"], "icon": data["weather"][0]["icon"]}
 
-    return {
-        "city": city,
-        "temp": data["main"]["temp"],
-        "icon": data["weather"][0]["icon"]
-    }
-# Overwrite the placeholder — welcome disappears
+# Overwrite placeholder
 with placeholder.container():
-    st.subheader("🌤️ Météo par ville")
+    st.markdown("<h2 style='text-align:center; margin-bottom:30px;'>🌤️ Météo par ville</h2>", unsafe_allow_html=True)
 
-    # 3 columns: left spacer, center content, right spacer
-    left, center, right = st.columns([1, 3, 1])
+    # Use Streamlit columns for actual widgets
+    cols = st.columns(len(cities))  # one column per city
 
-    with center:
-        # Loop over cities and display each
-        for city in cities:
-            weather = get_weather(city)
-            st.markdown(
-                f"""
-                <div style='text-align:center; display:inline-block; margin: 0 30px;'>
-                    <h3>{weather['city']}</h3>
-                    <img src="https://openweathermap.org/img/wn/{weather['icon']}@2x.png" width="80">
-                    <p style='font-size:20px'>{weather['temp']} °C</p>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+    for i, city in enumerate(cities):
+        weather = get_weather(city)
+        with cols[i]:
+            st.markdown(f"<h3 style='text-align:center'>{weather['city']}</h3>", unsafe_allow_html=True)
+            st.image(f"https://openweathermap.org/img/wn/{weather['icon']}@2x.png", width=80)
+            st.metric(label="Température", value=f"{weather['temp']} °C")
+
+    
 def icon_url(icon_id):
     return f"https://openweathermap.org/img/wn/{icon_id}@2x.png"
 
-# Overwrite welcome placeholder — this makes the welcome disappear
-'''with placeholder.container():
-
-    st.subheader("🌤️ Météo par ville")
-    
-
-
-    for city in cities:
-        weather = get_weather(city)
-
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            st.image(icon_url(weather["icon"]), width=80)
-        with col2:
-            st.write(f"**{weather['city']}**")
-            st.write(f"{weather['temp']} °C")'''
-
-
-
-   
 
 
 
