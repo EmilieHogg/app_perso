@@ -1,176 +1,13 @@
+# third_app_perso.py
 
-print("Script started")
-
-
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import WebDriverException
-from selenium.common.exceptions import TimeoutException
-from bs4 import BeautifulSoup
-from webdriver_manager.chrome import ChromeDriverManager
-import requests
-from playwright.sync_api import sync_playwright
-from playwright.sync_api import sync_playwright
-from bs4 import BeautifulSoup
 import streamlit as st
-import time
-import re
 import pandas as pd
-import requests
-import streamlit as st
-import unicodedata
+import os
+import time
 import json
 from streamlit_lottie import st_lottie
-import feedparser
-
-# ── Page config ────────────────────────────────────────────
-st.set_page_config(page_title="Tableau de bord interactif", layout="wide")
-
- # Load lottie animation
-def load_lottiefile(filepath):
-        with open(filepath, "r") as f:
-            return json.load(f)
-
-lottie_confetti = load_lottiefile("confetti.json")
-
-    # Placeholder
-placeholder = st.empty()
-
-    # 1️⃣ Show confetti
-with placeholder.container():
-        st_lottie(lottie_confetti, speed=1, loop=False)
-
-    # Wait for animation
-time.sleep(2.5)
-
-    # 2️⃣ Replace with welcome message + fade effect
-with placeholder.container():
-    st.markdown(
-            """
-            <style>
-            .fade-in {
-                animation: fadeIn 2s ease-in;
-                text-align: center;
-            }
-
-            @keyframes fadeIn {
-                0% {opacity:0; transform: translateY(20px);}
-                100% {opacity:1; transform: translateY(0);}
-            }
-            </style>
-
-            <div class="fade-in">
-                <h1>Bonjour Jean-Pol 👋</h1>
-                <h3>Bienvenue sur ton <span style="color:#ff4b4b;">tableau de bord interactif</span> !</h3>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-
-
-
-
-
-
-# Delay before showing weather (in seconds)
-time.sleep(2.5)
-
-# 2️⃣ Weather Section fully centered
-api_key = "e8908a3217f223d1a784c8a38643e51f"
-cities = ["Paris", "Andernos-les-Bains"]
-
-def get_weather(city):
-    url = "https://api.openweathermap.org/data/2.5/weather"
-    params = {"q": city, "appid": api_key, "units": "metric", "lang": "fr"}
-    r = requests.get(url, params=params)
-    r.raise_for_status()
-    data = r.json()
-    return {"city": city, "temp": data["main"]["temp"], "icon": data["weather"][0]["icon"]}
-
-# Overwrite placeholder
-with placeholder.container():
-    st.markdown("<h2 style='text-align:center; margin-bottom:30px;'>🌤️ Météo par ville</h2>", unsafe_allow_html=True)
-
-    # Use Streamlit columns for actual widgets
-    cols = st.columns(len(cities))  # one column per city
-
-    for i, city in enumerate(cities):
-        weather = get_weather(city)
-        with cols[i]:
-            st.markdown(f"<h3 style='text-align:center'>{weather['city']}</h3>", unsafe_allow_html=True)
-            st.image(f"https://openweathermap.org/img/wn/{weather['icon']}@2x.png", width=80)
-            st.metric(label="Température", value=f"{weather['temp']} °C")
-import streamlit as st
 import requests
-
-import streamlit as st
 import feedparser
-
-st.header("📰 Nouveautés – Courbevoie")
-
-rss_url = "https://www.actu.fr/rss/hauts-de-seine/courbevoie.xml"
-feed = feedparser.parse(rss_url)
-
-if feed.entries:
-    for entry in feed.entries[:5]:
-        st.markdown(f"<h3 style='text-align:center'>{entry.title}</h3>", unsafe_allow_html=True)
-        if getattr(entry, "summary", None):
-            st.write(entry.summary)
-        st.markdown(f"<p style='text-align:center'><a href='{entry.link}' target='_blank'>Lire la suite</a></p>", unsafe_allow_html=True)
-        st.divider()
-else:
-    st.write("Pas de news récentes pour Courbevoie pour le moment.")
-
-st.header("📰 Actualités spécialisées")
-
-api_key = "TON_NEWSAPI_KEY"
-
-# Choix de la catégorie par l'utilisateur
-categorie = st.selectbox("Choisir une catégorie", ["Guerre / Conflits", "Voile", "Andernos", "Modélisme"])
-
-# Mapping catégorie → mots-clés
-keywords = {
-    "Guerre / Conflits": "guerre OR conflit OR Ukraine OR Russie OR Moyen-Orient OR Syrie",
-    "Voile": "voile OR régate OR yachting OR bateau",
-    "Andernos": "Andernos-les-Bains OR Andernos OR Andernos les bains",
-    "Modélisme": "modélisme OR maquette OR miniatures OR modélisme ferroviaire OR modélisme bateau"
-}
-
-# ✅ Ici on définit correctement l'URL de l'API News
-url = "https://newsapi.org/v2/top-headlines"
-
-params = {
-    "q": keywords[categorie],
-    "language": "fr",
-    "sortBy": "publishedAt",
-    "pageSize": 5,
-    "apiKey": api_key
-}
-res = requests.get(url, params=params)
-data = res.json()
-
-if data.get("articles"):
-    for article in data["articles"]:
-        st.markdown(f"### {article['title']}")
-        if article['urlToImage']:
-            st.image(article['urlToImage'], use_column_width=True)
-        st.write(article['description'])
-        st.markdown(f"[Lire la suite]({article['url']})")
-        st.divider()
-else:
-    st.write("Pas de news disponibles pour le moment.")
-    
-def icon_url(icon_id):
-    return f"https://openweathermap.org/img/wn/{icon_id}@2x.png"
-
-
-
-
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -182,188 +19,110 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import re
 
-programming = ["opera", "ballet"]
-base_url = "https://www.operadeparis.fr/programmation/saison-25-26"
-programming_urls = [f"{base_url}/{p}" for p in programming]
+# ── Page config ───────────────────────────
+st.set_page_config(page_title="Tableau de bord interactif", layout="wide")
 
-print(programming_urls)
+# ── Placeholder principal ─────────────────
+main_placeholder = st.empty()
 
+# ── Fonction pour charger animation Lottie ──
+def load_lottiefile(filepath):
+    with open(filepath, "r") as f:
+        return json.load(f)
 
-def scrape_events(programming_urls):
-    options = Options()
-    options.add_argument("--headless=new")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-
-    events = []
-
-    # Initialize driver once
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+# ── Fonction pour afficher le dashboard CAC40 ──
+def show_cac40_dashboard(placeholder):
+    filename = "CAC40_closing_prices_named.csv"
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, filename)
 
     try:
-        for url in programming_urls:
-            driver.get(url)
-            try:
-                # Wait up to 10 seconds for at least one show
-                WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, "li.show"))
-                )
-            except TimeoutException:
-                print(f"No shows found on {url}")
-                continue  # skip to next url
+        df = pd.read_csv(file_path)
+    except FileNotFoundError:
+        placeholder.error(f"❌ File not found: {file_path}")
+        return
 
-            html = driver.page_source
-            soup = BeautifulSoup(html, "html.parser")
-            show_elements = soup.find_all("li", class_="show")
-            print(f"Found shows on {url}: {len(show_elements)}")
+    CAC40_df = df.set_index("Date").apply(pd.to_numeric, errors='coerce')
+    company_names = CAC40_df.columns.tolist()
 
-            for show in show_elements:
-                raw_text = show.get_text(separator=" ", strip=True)
-                full_dates = "Unknown"
-                link_element = show.find("a", href=True)
-                link = link_element["href"] if link_element else None
+    if not company_names:
+        placeholder.error("❌ No companies found in CSV.")
+        return
 
-                  # Regex patterns for multiple date formats
-                patterns = [
-                    r"(du\s+\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*au\s*\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4})",
-                    r"(du\s+\d{1,2}\s*au\s*\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4})",
-                    r"(le\s+\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4}(?:\s+à\s*\d{1,2}h\d{2})?)"
-                ]
+    with placeholder.container():
+        st.sidebar.title("📊 CAC 40 Dashboard")
+        selected_company = st.sidebar.selectbox("Select a company", company_names)
 
-                matches = []
-                for pattern in patterns:
-                    matches += re.findall(pattern, raw_text)
+        st.title("CAC 40 Closing Prices")
+        latest_price = CAC40_df[selected_company].dropna().iloc[-1]
+        st.metric(label=f"{selected_company} — Latest Close", value=f"{latest_price:.2f} €")
 
-                if matches:
-                    full_dates = " ; ".join(matches)
+        st.subheader(f"{selected_company} — Price History")
+        st.line_chart(CAC40_df[selected_company])
 
+# ── Fonction pour afficher météo, news et Opéra ──
+def show_main_dashboard(placeholder):
+    # 1️⃣ Confetti et message de bienvenue
+    lottie_confetti = load_lottiefile("confetti.json")
+    with placeholder.container():
+        st_lottie(lottie_confetti, speed=1, loop=False)
+    time.sleep(2.5)
+    with placeholder.container():
+        st.markdown("""
+            <style>
+            .fade-in { animation: fadeIn 2s ease-in; text-align: center; }
+            @keyframes fadeIn { 0% {opacity:0; transform: translateY(20px);} 100% {opacity:1; transform: translateY(0);} }
+            </style>
+            <div class="fade-in">
+                <h1>Bonjour Jean-Pol 👋</h1>
+                <h3>Bienvenue sur ton <span style="color:#ff4b4b;">tableau de bord interactif</span> !</h3>
+            </div>
+        """, unsafe_allow_html=True)
 
-                # Determine location
-                location = ("Bobigny" if "Bobigny" in raw_text else
-                            "Philharmonie de Paris" if "Philharmonie de Paris" in raw_text else
-                            "Studio Bastille" if "Studio Bastille" in raw_text else
-                            "Palais Garnier" if "Palais Garnier" in raw_text else
-                            "Opéra Bastille" if "Opéra Bastille" in raw_text else
-                            "Amphithéâtre" if "Amphithéâtre" in raw_text else
-                            "Unknown")
+    # 2️⃣ Météo
+    api_key = "e8908a3217f223d1a784c8a38643e51f"
+    cities = ["Paris", "Andernos-les-Bains"]
 
-                # Clean title
-                title = raw_text
-                for part in [full_dates, location, "Voir les disponibilités", "Réserver"]:
-                    if part and part != "Unknown":
-                        title = title.replace(part, "").strip()
+    def get_weather(city):
+        url = "https://api.openweathermap.org/data/2.5/weather"
+        params = {"q": city, "appid": api_key, "units": "metric", "lang": "fr"}
+        r = requests.get(url, params=params)
+        r.raise_for_status()
+        data = r.json()
+        return {"city": city, "temp": data["main"]["temp"], "icon": data["weather"][0]["icon"]}
 
-                events.append({
-                    "title": title,
-                    "dates": full_dates,
-                    "location": location,
-                    "url": link
-                })
+    with placeholder.container():
+        st.markdown("<h2 style='text-align:center; margin-bottom:30px;'>🌤️ Météo par ville</h2>", unsafe_allow_html=True)
+        cols = st.columns(len(cities))
+        for i, city in enumerate(cities):
+            weather = get_weather(city)
+            with cols[i]:
+                st.markdown(f"<h3 style='text-align:center'>{weather['city']}</h3>", unsafe_allow_html=True)
+                st.image(f"https://openweathermap.org/img/wn/{weather['icon']}@2x.png", width=80)
+                st.metric(label="Température", value=f"{weather['temp']} °C")
 
-    except WebDriverException as e:
-        print(f"❌ Selenium failed: {e}")
+    # 3️⃣ News Courbevoie
+    st.header("📰 Nouveautés – Courbevoie")
+    rss_url = "https://www.actu.fr/rss/hauts-de-seine/courbevoie.xml"
+    feed = feedparser.parse(rss_url)
+    if feed.entries:
+        for entry in feed.entries[:5]:
+            st.markdown(f"<h3 style='text-align:center'>{entry.title}</h3>", unsafe_allow_html=True)
+            if getattr(entry, "summary", None):
+                st.write(entry.summary)
+            st.markdown(f"<p style='text-align:center'><a href='{entry.link}' target='_blank'>Lire la suite</a></p>", unsafe_allow_html=True)
+            st.divider()
+    else:
+        st.write("Pas de news récentes pour Courbevoie pour le moment.")
 
-    finally:
-        driver.quit()
+    # 4️⃣ Opéra de Paris (simplifié)
+    st.subheader("🎭 Programmation Opéra de Paris – Saison 25/26")
+    st.write("Contenu Opéra ici...")
 
-    return events
-
-
-# Scrape events
-events = scrape_events(programming_urls)
-
-# Remove duplicates
-unique_events = []
-seen_urls = set()
-for e in events:
-    if e["url"] not in seen_urls:
-        unique_events.append(e)
-        seen_urls.add(e["url"])
-
-# Display results
-for e in unique_events:
-    print(f"Titre  : {e['title']}")
-    print(f"Dates  : {e['dates']}")
-    print(f"Lieu   : {e['location']}")
-    print(f"URL    : {e['url']}")
-    print("-" * 40)
-
-print(f"Total événements : {len(unique_events)}")
-
-
-st.subheader("🎭 Programmation Opéra de Paris – Saison 25/26")
-
-for e in unique_events:
-    st.markdown(f"### {e['title']}")
-    st.write(f"📅 **Dates** : {e['dates']}")
-    st.write(f"📍 **Lieu** : {e['location']}")
-    st.markdown(f"[🔗 Voir le spectacle]({e['url']})")
-    st.divider()
-
-                    
-st.write(f"Total evenements ; {len(unique_events)}")
-
-#st. subheader ("Valeurs du CAC 4O")
-
-
-
-# third_app_perso.py
-import streamlit as st
-from CAC40 import load_cac40
-import os
-
-import os
-import pandas as pd
-import streamlit as st
-
-import os
-import pandas as pd
-import streamlit as st
-
-import streamlit as st
-import pandas as pd
-import os
-
-# ── Page config ────────────────────────────────────────────
-st.set_page_config(page_title="CAC 40", layout="wide")
-
-# ── Load Data ──────────────────────────────────────────────
-filename = "CAC40_closing_prices_named.csv"
-try:
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-except NameError:
-    base_dir = os.getcwd()
-
-file_path = os.path.join(base_dir, filename)
-
-try:
-    df = pd.read_csv(file_path)
-except FileNotFoundError:
-    st.error(f"❌ File not found: {file_path}")
-    st.stop()
-
-# ── Prepare DataFrame ──────────────────────────────────────
-CAC40_df = df.set_index("Date").apply(pd.to_numeric, errors='coerce')
-company_names = CAC40_df.columns.tolist()
-
-if not company_names:
-    st.error("❌ No companies found in CSV.")
-    st.stop()
-
-# ── Sidebar — ONE selectbox only ───────────────────────────
-st.sidebar.title("📊 CAC 40 Dashboard")
-selected_company = st.sidebar.selectbox("Select a company", company_names)
-
-# ── Main Page ──────────────────────────────────────────────
-st.title("CAC 40 Closing Prices")
-
-latest_price = CAC40_df[selected_company].dropna().iloc[-1]
-
-st.metric(
-    label=f"{selected_company} — Latest Close",
-    value=f"{latest_price:.2f} €"
-)
-
-st.subheader(f"{selected_company} — Price History")
-st.line_chart(CAC40_df[selected_company])
+# ── Sidebar buttons ─────────────────────────
+if st.sidebar.button("Show CAC40 Dashboard"):
+    main_placeholder.empty()  # vide le contenu existant
+    show_cac40_dashboard(main_placeholder)
+else:
+    main_placeholder.empty()
+    show_main_dashboard(main_placeholder)
