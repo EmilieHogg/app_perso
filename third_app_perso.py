@@ -1,3 +1,4 @@
+
 print("Script started")
 
 
@@ -24,6 +25,7 @@ import streamlit as st
 import unicodedata
 import json
 from streamlit_lottie import st_lottie
+import feedparser
 
 # ── Page config ────────────────────────────────────────────
 st.set_page_config(page_title="Tableau de bord interactif", layout="wide")
@@ -103,7 +105,65 @@ with placeholder.container():
             st.markdown(f"<h3 style='text-align:center'>{weather['city']}</h3>", unsafe_allow_html=True)
             st.image(f"https://openweathermap.org/img/wn/{weather['icon']}@2x.png", width=80)
             st.metric(label="Température", value=f"{weather['temp']} °C")
+import streamlit as st
+import requests
 
+import streamlit as st
+import feedparser
+
+st.header("📰 Nouveautés – Courbevoie")
+
+rss_url = "https://www.actu.fr/rss/hauts-de-seine/courbevoie.xml"
+feed = feedparser.parse(rss_url)
+
+if feed.entries:
+    for entry in feed.entries[:5]:
+        st.markdown(f"<h3 style='text-align:center'>{entry.title}</h3>", unsafe_allow_html=True)
+        if getattr(entry, "summary", None):
+            st.write(entry.summary)
+        st.markdown(f"<p style='text-align:center'><a href='{entry.link}' target='_blank'>Lire la suite</a></p>", unsafe_allow_html=True)
+        st.divider()
+else:
+    st.write("Pas de news récentes pour Courbevoie pour le moment.")
+
+st.header("📰 Actualités spécialisées")
+
+api_key = "TON_NEWSAPI_KEY"
+
+# Choix de la catégorie par l'utilisateur
+categorie = st.selectbox("Choisir une catégorie", ["Guerre / Conflits", "Voile", "Andernos", "Modélisme"])
+
+# Mapping catégorie → mots-clés
+keywords = {
+    "Guerre / Conflits": "guerre OR conflit OR Ukraine OR Russie OR Moyen-Orient OR Syrie",
+    "Voile": "voile OR régate OR yachting OR bateau",
+    "Andernos": "Andernos-les-Bains OR Andernos OR Andernos les bains",
+    "Modélisme": "modélisme OR maquette OR miniatures OR modélisme ferroviaire OR modélisme bateau"
+}
+
+# ✅ Ici on définit correctement l'URL de l'API News
+url = "https://newsapi.org/v2/top-headlines"
+
+params = {
+    "q": keywords[categorie],
+    "language": "fr",
+    "sortBy": "publishedAt",
+    "pageSize": 5,
+    "apiKey": api_key
+}
+res = requests.get(url, params=params)
+data = res.json()
+
+if data.get("articles"):
+    for article in data["articles"]:
+        st.markdown(f"### {article['title']}")
+        if article['urlToImage']:
+            st.image(article['urlToImage'], use_column_width=True)
+        st.write(article['description'])
+        st.markdown(f"[Lire la suite]({article['url']})")
+        st.divider()
+else:
+    st.write("Pas de news disponibles pour le moment.")
     
 def icon_url(icon_id):
     return f"https://openweathermap.org/img/wn/{icon_id}@2x.png"
@@ -244,7 +304,7 @@ for e in unique_events:
                     
 st.write(f"Total evenements ; {len(unique_events)}")
 
-st. subheader ("Valeurs du CAC 4O")
+#st. subheader ("Valeurs du CAC 4O")
 
 
 
@@ -260,6 +320,10 @@ import streamlit as st
 import os
 import pandas as pd
 import streamlit as st
+
+import streamlit as st
+import pandas as pd
+import os
 
 # ── Page config ────────────────────────────────────────────
 st.set_page_config(page_title="CAC 40", layout="wide")
