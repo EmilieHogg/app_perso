@@ -213,22 +213,29 @@ def show_cac40():
 # Graphique historique
     st.subheader(f"{selected} — Historique des prix")
     st.line_chart(prices)
-
-# ── Page News ─────────
 def show_news():
+    import streamlit as st
+    import requests
+    from bs4 import BeautifulSoup
+
     st.title("📰 Actualités – Andernos")
-    url = "https://www.ladepeche.fr/andernos-les-bains"
-    r = requests.get(url)
+
+    url = "https://www.sudouest.fr/gironde/andernos-les-bains/"
+    headers = {"User-Agent": "Mozilla/5.0"}
+
+    r = requests.get(url, headers=headers)
     soup = BeautifulSoup(r.text, "html.parser")
 
-    articles = soup.select("article")[:5]  # récupérer les 5 premiers articles
+    articles = soup.select("article")[:5]
+
     if not articles:
         st.write("Pas de news disponibles pour Andernos.")
         return
 
     for a in articles:
-        title = a.select_one("h2, h3")  # titre de l'article
+        title = a.select_one("h2, h3")
         link = a.find("a", href=True)
+
         if title and link:
             st.markdown(f"### {title.text.strip()}")
             st.markdown(f"[Lire la suite]({link['href']})")
