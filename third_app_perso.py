@@ -17,10 +17,34 @@ from streamlit_lottie import st_lottie
 import time
 import feedparser
 
-st.set_page_config(page_title="Tableau de bord interactif", layout="wide")
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+
+options = Options()
+options.add_argument("--headless=new")  # Run in headless mode
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--disable-gpu")
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
+
+st.set_page_config(page_title="Tableau de bord interactif", layout="centered")
 
 # ── Sidebar Navigation ─────────
-page = st.sidebar.radio("Navigation", ["Accueil", "Météo", "Opéra", "CAC40", "News"])
+page = st.sidebar.radio("Navigation", ["Accueil", "Météo", "Opéras de Paris", "Valeurs du CAC40", "Actualité"])
+
+
+#from pyicloud import PyiCloudService
+#import streamlit as st
+
+#api = PyiCloudService("Yellowbanane3", "Yellowbanane3")
+#photos = api.photos.all
+
+#for photo in photos[:3]:  # show latest 3
+    #st.image(photo.download().raw, use_column_width=True)
 
 # ── Load lottie animation ─────────
 def load_lottiefile(filepath):
@@ -28,6 +52,7 @@ def load_lottiefile(filepath):
         return json.load(f)
 
 lottie_confetti = load_lottiefile("confetti.json")
+
 
 # ── Page Accueil ─────────
 def show_accueil():
@@ -170,9 +195,24 @@ def show_cac40():
     selected = st.selectbox("Sélectionner une société", companies)
     latest = CAC40_df[selected].dropna().iloc[-1]
 
-    st.metric(label=f"{selected} — Dernière clôture", value=f"{latest:.2f} €")
+    
+    # Calcul des variations
+    prices = CAC40_df[selected].dropna()
+
+    variation_1d = latest - prices.iloc[-2] if len(prices) > 1 else 0
+    variation_1w = latest - prices.iloc[-6] if len(prices) > 5 else 0
+    variation_1m = latest - prices.iloc[-21] if len(prices) > 20 else 0
+
+    # Affichage des métriques
+  # Affichage des variations côte à côte
+    col1, col2, col3 = st.columns(3)
+    col1.metric(label="Variation 1 jour", value=f"{variation_1d:+.2f} €")
+    col2.metric(label="Variation 1 semaine", value=f"{variation_1w:+.2f} €")
+    col3.metric(label="Variation 1 mois", value=f"{variation_1m:+.2f} €")
+
+# Graphique historique
     st.subheader(f"{selected} — Historique des prix")
-    st.line_chart(CAC40_df[selected])
+    st.line_chart(prices)
 
 # ── Page News ─────────
 def show_news():
@@ -199,9 +239,9 @@ if page == "Accueil":
     show_accueil()
 elif page == "Météo":
     show_meteo()
-elif page == "Opéra":
+elif page == "Opéras de Paris":
     show_opera()
-elif page == "CAC40":
+elif page == "Valeurs du CAC40":
     show_cac40()
-elif page == "News":
+elif page == "Actualité":
     show_news()
