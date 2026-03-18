@@ -2,12 +2,8 @@ streamlit
 pandas
 requests
 beautifulsoup4
-playwright
+lxml
 selenium
 webdriver-manager
 streamlit-lottie
 feedparser
-re
-time
-json
-bs4  
