@@ -3,14 +3,6 @@ import pandas as pd
 import os
 import requests
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, WebDriverException
-from webdriver_manager.chrome import ChromeDriverManager
 import re
 import json
 from streamlit_lottie import st_lottie
@@ -18,17 +10,11 @@ import time
 import feedparser
 import urllib.request
 
-# ── REMOVE THE GLOBAL DRIVER — DELETE THESE LINES ─────────
-# options = Options()                          ← DELETE
-# options.add_argument("--headless=new")       ← DELETE
-# ...                                          ← DELETE
-# driver = webdriver.Chrome(...)               ← DELETE
-
 # ── Page config ────────────────────────────────────────────
 st.set_page_config(page_title="Tableau de bord interactif", layout="centered")
 
 # ── Sidebar Navigation ─────────────────────────────────────
-page = st.sidebar.radio("Navigation", ["Accueil", "Météo", "Opéras de Paris", "Valeurs du CAC40", "Actualité"])
+page = st.sidebar.radio("Navigation", ["Accueil", "Meteo", "Operas de Paris", "Valeurs du CAC40", "Actualite"])
 
 # ── Load lottie animation ──────────────────────────────────
 def load_lottiefile(filepath):
@@ -37,7 +23,9 @@ def load_lottiefile(filepath):
 
 lottie_confetti = load_lottiefile("confetti.json")
 
-# ── Page Accueil ───────────────────────────────────────────
+# ══════════════════════════════════════════════════════════
+# PAGE ACCUEIL
+# ══════════════════════════════════════════════════════════
 def show_accueil():
     placeholder = st.empty()
     with placeholder.container():
@@ -56,113 +44,175 @@ def show_accueil():
             }
             </style>
             <div class="fade-in">
-                <h1>Bonjour Jean-Pol 👋</h1>
+                <h1>Bonjour Jean-Pol</h1>
                 <h3>Bienvenue sur ton <span style="color:#ff4b4b;">tableau de bord interactif</span> !</h3>
             </div>
         """, unsafe_allow_html=True)
 
-# ── Page Météo ─────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════
+# PAGE METEO
+# ══════════════════════════════════════════════════════════
 def show_meteo():
-    st.title("🌤️ Météo")
+    st.title("Meteo")
     cities = ["Paris", "Andernos-les-Bains"]
     api_key = "e8908a3217f223d1a784c8a38643e51f"
 
     for city in cities:
         url = "https://api.openweathermap.org/data/2.5/weather"
         params = {"q": city, "appid": api_key, "units": "metric", "lang": "fr"}
-        r = requests.get(url, params=params)
-        r.raise_for_status()
-        data = r.json()
-        temp = data["main"]["temp"]
-        icon = data["weather"][0]["icon"]
-        st.markdown(f"### {city}")
-        st.image(f"https://openweathermap.org/img/wn/{icon}@2x.png", width=80)
-        st.metric(label="Température", value=f"{temp} °C")
+        try:
+            r = requests.get(url, params=params, timeout=10)
+            r.raise_for_status()
+            data = r.json()
+            temp = data["main"]["temp"]
+            icon = data["weather"][0]["icon"]
+            st.markdown(f"### {city}")
+            st.image(f"https://openweathermap.org/img/wn/{icon}@2x.png", width=80)
+            st.metric(label="Temperature", value=f"{temp} C")
+        except Exception as e:
+            st.error(f"Erreur meteo pour {city} : {e}")
 
-# ── Page Opéra ─────────────────────────────────────────────
-# ⚠️ Selenium is only created HERE, inside the function
+# ══════════════════════════════════════════════════════════
+# PAGE OPERA — no Selenium, hardcoded shows + direct links
+# ══════════════════════════════════════════════════════════
 def show_opera():
-    st.title("🎭 Programmation Opéra de Paris – Saison 25/26")
-    programming = ["opera", "ballet"]
-    base_url = "https://www.operadeparis.fr/programmation/saison-25-26"
-    programming_urls = [f"{base_url}/{p}" for p in programming]
+    st.title("Opera de Paris - Saison 25/26")
 
-    st.write("Chargement des spectacles...")
+    opera_shows = [
+        {
+            "title": "Aida",
+            "dates": "24 sept. au 04 nov. 2025",
+            "location": "Opera Bastille",
+            "url": "https://www.operadeparis.fr/saison-25-26/opera/aida"
+        },
+        {
+            "title": "La Walkyrie",
+            "dates": "11 nov. au 30 nov. 2025",
+            "location": "Opera Bastille",
+            "url": "https://www.operadeparis.fr/saison-25-26/opera/la-walkyrie"
+        },
+        {
+            "title": "Siegfried",
+            "dates": "17 janv. au 31 janv. 2026",
+            "location": "Opera Bastille",
+            "url": "https://www.operadeparis.fr/saison-25-26/opera/siegfried"
+        },
+        {
+            "title": "Eugene Oneguine",
+            "dates": "15 nov. 2025 au 27 dec. 2025",
+            "location": "Palais Garnier",
+            "url": "https://www.operadeparis.fr/saison-25-26/opera/eugene-oneguine"
+        },
+        {
+            "title": "Tosca",
+            "dates": "07 fevr. au 19 mars 2026",
+            "location": "Opera Bastille",
+            "url": "https://www.operadeparis.fr/saison-25-26/opera/tosca"
+        },
+        {
+            "title": "Carmen",
+            "dates": "24 fevr. au 20 mars 2026",
+            "location": "Opera Bastille",
+            "url": "https://www.operadeparis.fr/saison-25-26/opera/carmen"
+        },
+        {
+            "title": "Ercole Amante",
+            "dates": "28 mai au 14 juin 2026",
+            "location": "Opera Bastille",
+            "url": "https://www.operadeparis.fr/saison-25-26/opera/ercole-amante"
+        },
+    ]
 
-    # Driver created ONLY when this page is selected
-    options = Options()
-    options.add_argument("--headless=new")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
+    ballet_shows = [
+        {
+            "title": "Giselle",
+            "dates": "28 sept. au 31 oct. 2025",
+            "location": "Palais Garnier",
+            "url": "https://www.operadeparis.fr/saison-25-26/ballet/giselle"
+        },
+        {
+            "title": "Racines",
+            "dates": "06 oct. au 10 nov. 2025",
+            "location": "Opera Bastille",
+            "url": "https://www.operadeparis.fr/saison-25-26/ballet/racines"
+        },
+        {
+            "title": "Notre-Dame de Paris",
+            "dates": "06 dec. au 31 dec. 2025",
+            "location": "Opera Bastille",
+            "url": "https://www.operadeparis.fr/saison-25-26/ballet/notre-dame-de-paris"
+        },
+        {
+            "title": "Contrastes",
+            "dates": "01 dec. au 31 dec. 2025",
+            "location": "Palais Garnier",
+            "url": "https://www.operadeparis.fr/saison-25-26/ballet/contrastes"
+        },
+        {
+            "title": "Le Parc",
+            "dates": "03 fevr. au 25 fevr. 2026",
+            "location": "Palais Garnier",
+            "url": "https://www.operadeparis.fr/saison-25-26/ballet/le-parc"
+        },
+        {
+            "title": "Empreintes",
+            "dates": "11 mars au 28 mars 2026",
+            "location": "Palais Garnier",
+            "url": "https://www.operadeparis.fr/saison-25-26/ballet/empreintes"
+        },
+        {
+            "title": "Romeo et Juliette",
+            "dates": "02 avr. au 12 mai 2026",
+            "location": "Opera Bastille",
+            "url": "https://www.operadeparis.fr/saison-25-26/ballet/romeo-et-juliette"
+        },
+        {
+            "title": "La Dame aux camelias",
+            "dates": "05 mai au 23 mai 2026",
+            "location": "Palais Garnier",
+            "url": "https://www.operadeparis.fr/saison-25-26/ballet/la-dame-aux-camelias"
+        },
+        {
+            "title": "La Bayadere",
+            "dates": "17 juin au 14 juil. 2026",
+            "location": "Opera Bastille",
+            "url": "https://www.operadeparis.fr/saison-25-26/ballet/la-bayadere"
+        },
+        {
+            "title": "Vibrations",
+            "dates": "27 juin au 14 juil. 2026",
+            "location": "Palais Garnier",
+            "url": "https://www.operadeparis.fr/saison-25-26/ballet/vibrations"
+        },
+    ]
 
-    try:
-        driver = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()),
-            options=options
-        )
-    except WebDriverException as e:
-        st.error("❌ Chrome n'est pas disponible sur ce serveur.")
-        st.info("💡 La page Opéra nécessite Chrome — fonctionne uniquement en local.")
-        return
+    def display_shows(shows):
+        for show in shows:
+            col1, col2, col3 = st.columns([3, 2, 1])
+            with col1:
+                st.markdown(f"### {show['title']}")
+            with col2:
+                st.write(f"Dates : {show['dates']}")
+                st.write(f"Lieu : {show['location']}")
+            with col3:
+                st.markdown(f"[Reserver]({show['url']})")
+            st.divider()
 
-    events = []
-    try:
-        for url in programming_urls:
-            driver.get(url)
-            try:
-                WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, "li.show"))
-                )
-            except TimeoutException:
-                continue
+    tab1, tab2 = st.tabs(["Opera", "Ballet"])
+    with tab1:
+        display_shows(opera_shows)
+    with tab2:
+        display_shows(ballet_shows)
 
-            soup = BeautifulSoup(driver.page_source, "html.parser")
-            for show in soup.find_all("li", class_="show"):
-                raw_text = show.get_text(separator=" ", strip=True)
-                patterns = [
-                    r"(du\s+\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*au\s*\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4})",
-                    r"(du\s+\d{1,2}\s*au\s*\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4})",
-                    r"(le\s+\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4}(?:\s+à\s*\d{1,2}h\d{2})?)"
-                ]
-                matches = []
-                for p in patterns:
-                    matches += re.findall(p, raw_text)
-                dates = " ; ".join(matches) if matches else "Unknown"
+    st.markdown("---")
+    st.markdown("[Voir le programme complet](https://www.operadeparis.fr/programmation/saison-25-26)")
 
-                location = ("Bobigny" if "Bobigny" in raw_text else
-                            "Philharmonie de Paris" if "Philharmonie de Paris" in raw_text else
-                            "Studio Bastille" if "Studio Bastille" in raw_text else
-                            "Palais Garnier" if "Palais Garnier" in raw_text else
-                            "Opéra Bastille" if "Opéra Bastille" in raw_text else
-                            "Amphithéâtre" if "Amphithéâtre" in raw_text else
-                            "Unknown")
 
-                title = raw_text
-                for part in [dates, location, "Voir les disponibilités", "Réserver"]:
-                    if part != "Unknown":
-                        title = title.replace(part, "").strip()
-
-                link = show.find("a", href=True)
-                link_url = link["href"] if link else None
-                events.append({"title": title, "dates": dates, "location": location, "url": link_url})
-
-    except WebDriverException as e:
-        st.error(f"Selenium failed: {e}")
-    finally:
-        driver.quit()
-
-    for e in events:
-        st.markdown(f"### {e['title']}")
-        st.write(f"📅 Dates : {e['dates']}")
-        st.write(f"📍 Lieu : {e['location']}")
-        if e["url"]:
-            st.markdown(f"[🔗 Voir le spectacle]({e['url']})")
-        st.divider()
-
-# ── Page CAC40 ─────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════
+# PAGE CAC40
+# ══════════════════════════════════════════════════════════
 def show_cac40():
-    st.title("📊 CAC 40 Dashboard")
+    st.title("CAC 40 Dashboard")
     filename = "CAC40_closing_prices_named.csv"
     try:
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -174,12 +224,12 @@ def show_cac40():
     try:
         df = pd.read_csv(file_path)
     except FileNotFoundError:
-        st.error(f"❌ File not found: {file_path}")
+        st.error(f"Fichier non trouve : {file_path}")
         return
 
     CAC40_df = df.set_index("Date").apply(pd.to_numeric, errors="coerce")
     companies = CAC40_df.columns.tolist()
-    selected = st.selectbox("Sélectionner une société", companies)
+    selected = st.selectbox("Selectionner une societe", companies)
 
     prices = CAC40_df[selected].dropna()
     latest = prices.iloc[-1]
@@ -189,21 +239,23 @@ def show_cac40():
     variation_1m = latest - prices.iloc[-21] if len(prices) > 20 else 0
 
     col1, col2, col3 = st.columns(3)
-    col1.metric("Variation 1 jour",    f"{variation_1d:+.2f} €", delta=f"{variation_1d:+.2f}")
-    col2.metric("Variation 1 semaine", f"{variation_1w:+.2f} €", delta=f"{variation_1w:+.2f}")
-    col3.metric("Variation 1 mois",    f"{variation_1m:+.2f} €", delta=f"{variation_1m:+.2f}")
+    col1.metric("Variation 1 jour",    f"{variation_1d:+.2f} EUR", delta=f"{variation_1d:+.2f}")
+    col2.metric("Variation 1 semaine", f"{variation_1w:+.2f} EUR", delta=f"{variation_1w:+.2f}")
+    col3.metric("Variation 1 mois",    f"{variation_1m:+.2f} EUR", delta=f"{variation_1m:+.2f}")
 
-    st.subheader(f"{selected} — Historique des prix")
+    st.subheader(f"{selected} - Historique des prix")
     st.line_chart(prices)
 
-# ── Page News ─────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════
+# PAGE NEWS
+# ══════════════════════════════════════════════════════════
 def show_news():
-    st.title("📰 Actualités – Andernos-les-Bains")
+    st.title("Actualites - Andernos-les-Bains")
 
     feeds = [
-        {"name": "📰 InfoBassin",       "url": "https://www.infobassin.com/tag/andernos/feed/"},
-        {"name": "📺 TVBA Arcachon",    "url": "https://tvba.fr/feed/"},
-        {"name": "🏙️ France Bleu",     "url": "https://www.francebleu.fr/rss/infos.xml"},
+        {"name": "InfoBassin",    "url": "https://www.infobassin.com/tag/andernos/feed/"},
+        {"name": "TVBA Arcachon", "url": "https://tvba.fr/feed/"},
+        {"name": "France Bleu",   "url": "https://www.francebleu.fr/rss/infos.xml"},
     ]
 
     for feed in feeds:
@@ -218,7 +270,7 @@ def show_news():
             parsed = feedparser.parse(raw)
 
             if not parsed.entries:
-                st.warning("Aucun article trouvé.")
+                st.warning("Aucun article trouve.")
                 continue
 
             for entry in parsed.entries[:4]:
@@ -235,20 +287,22 @@ def show_news():
                         st.caption(published[:16])
                     link = entry.get("link", "")
                     if link:
-                        st.markdown(f"[Lire ➜]({link})")
+                        st.markdown(f"[Lire]({link})")
                 st.divider()
 
         except Exception as e:
-            st.error(f"❌ Erreur : {e}")
+            st.error(f"Erreur : {e}")
 
-# ── Router ─────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════
+# ROUTER
+# ══════════════════════════════════════════════════════════
 if page == "Accueil":
     show_accueil()
-elif page == "Météo":
+elif page == "Meteo":
     show_meteo()
-elif page == "Opéras de Paris":
+elif page == "Operas de Paris":
     show_opera()
 elif page == "Valeurs du CAC40":
     show_cac40()
-elif page == "Actualité":
+elif page == "Actualite":
     show_news()
