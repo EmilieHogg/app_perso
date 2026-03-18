@@ -53,7 +53,7 @@ def show_accueil():
 # PAGE METEO
 # ══════════════════════════════════════════════════════════
 def show_meteo():
-    st.title("Meteo")
+    st.title("🌤️ Météo")
     cities = ["Paris", "Andernos-les-Bains"]
     api_key = "e8908a3217f223d1a784c8a38643e51f"
 
@@ -76,8 +76,8 @@ def show_meteo():
 # PAGE OPERA — no Selenium, hardcoded shows + direct links
 # ══════════════════════════════════════════════════════════
 def show_opera():
-    st.title("Opera de Paris - Saison 25/26")
 
+    st.title("🎭 Programmation Opéra de Paris – Saison 25/26")
     opera_shows = [
         {"title": "Aida",                   "dates": "24 sept. au 04 nov. 2025",  "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/saison-25-26/opera/aida"},
         {"title": "La Walkyrie",             "dates": "11 nov. au 30 nov. 2025",   "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/saison-25-26/opera/la-walkyrie"},
@@ -143,7 +143,7 @@ def show_opera():
 # PAGE CAC40
 # ══════════════════════════════════════════════════════════
 def show_cac40():
-    st.title("CAC 40 Dashboard")
+    st.title("📊 CAC 40 Dashboard")
     filename = "CAC40_closing_prices_named.csv"
     try:
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -181,8 +181,8 @@ def show_cac40():
 # PAGE NEWS
 # ══════════════════════════════════════════════════════════
 def show_news():
-    st.title("Actualites - Andernos-les-Bains")
-
+    
+    st.title("📰 Actualités – Andernos-les-Bains")
     feeds = [
         {"name": "InfoBassin",    "url": "https://www.infobassin.com/tag/andernos/feed/"},
         {"name": "TVBA Arcachon", "url": "https://tvba.fr/feed/"},
