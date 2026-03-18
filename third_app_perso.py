@@ -16,56 +16,35 @@ import json
 from streamlit_lottie import st_lottie
 import time
 import feedparser
+import urllib.request
 
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+# ── REMOVE THE GLOBAL DRIVER — DELETE THESE LINES ─────────
+# options = Options()                          ← DELETE
+# options.add_argument("--headless=new")       ← DELETE
+# ...                                          ← DELETE
+# driver = webdriver.Chrome(...)               ← DELETE
 
-options = Options()
-options.add_argument("--headless=new")  # Run in headless mode
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-dev-shm-usage")
-options.add_argument("--disable-gpu")
-
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-
-
+# ── Page config ────────────────────────────────────────────
 st.set_page_config(page_title="Tableau de bord interactif", layout="centered")
 
-# ── Sidebar Navigation ─────────
+# ── Sidebar Navigation ─────────────────────────────────────
 page = st.sidebar.radio("Navigation", ["Accueil", "Météo", "Opéras de Paris", "Valeurs du CAC40", "Actualité"])
 
-
-#from pyicloud import PyiCloudService
-#import streamlit as st
-
-#api = PyiCloudService("Yellowbanane3", "Yellowbanane3")
-#photos = api.photos.all
-
-#for photo in photos[:3]:  # show latest 3
-    #st.image(photo.download().raw, use_column_width=True)
-
-# ── Load lottie animation ─────────
+# ── Load lottie animation ──────────────────────────────────
 def load_lottiefile(filepath):
     with open(filepath, "r") as f:
         return json.load(f)
 
 lottie_confetti = load_lottiefile("confetti.json")
 
-
-# ── Page Accueil ─────────
+# ── Page Accueil ───────────────────────────────────────────
 def show_accueil():
     placeholder = st.empty()
-    # Confetti
     with placeholder.container():
         st_lottie(lottie_confetti, speed=1, loop=False)
     time.sleep(2.5)
-
-    # Message de bienvenue
     with placeholder.container():
-        st.markdown(
-            """
+        st.markdown("""
             <style>
             .fade-in {
                 animation: fadeIn 2s ease-in;
@@ -80,11 +59,9 @@ def show_accueil():
                 <h1>Bonjour Jean-Pol 👋</h1>
                 <h3>Bienvenue sur ton <span style="color:#ff4b4b;">tableau de bord interactif</span> !</h3>
             </div>
-            """,
-            unsafe_allow_html=True
-        )
+        """, unsafe_allow_html=True)
 
-# ── Page Météo ─────────
+# ── Page Météo ─────────────────────────────────────────────
 def show_meteo():
     st.title("🌤️ Météo")
     cities = ["Paris", "Andernos-les-Bains"]
@@ -98,12 +75,12 @@ def show_meteo():
         data = r.json()
         temp = data["main"]["temp"]
         icon = data["weather"][0]["icon"]
-
         st.markdown(f"### {city}")
         st.image(f"https://openweathermap.org/img/wn/{icon}@2x.png", width=80)
         st.metric(label="Température", value=f"{temp} °C")
 
-# ── Page Opéra ─────────
+# ── Page Opéra ─────────────────────────────────────────────
+# ⚠️ Selenium is only created HERE, inside the function
 def show_opera():
     st.title("🎭 Programmation Opéra de Paris – Saison 25/26")
     programming = ["opera", "ballet"]
@@ -112,15 +89,24 @@ def show_opera():
 
     st.write("Chargement des spectacles...")
 
+    # Driver created ONLY when this page is selected
     options = Options()
     options.add_argument("--headless=new")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    events = []
+    try:
+        driver = webdriver.Chrome(
+            service=Service(ChromeDriverManager().install()),
+            options=options
+        )
+    except WebDriverException as e:
+        st.error("❌ Chrome n'est pas disponible sur ce serveur.")
+        st.info("💡 La page Opéra nécessite Chrome — fonctionne uniquement en local.")
+        return
 
+    events = []
     try:
         for url in programming_urls:
             driver.get(url)
@@ -134,7 +120,6 @@ def show_opera():
             soup = BeautifulSoup(driver.page_source, "html.parser")
             for show in soup.find_all("li", class_="show"):
                 raw_text = show.get_text(separator=" ", strip=True)
-                # Dates
                 patterns = [
                     r"(du\s+\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*au\s*\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4})",
                     r"(du\s+\d{1,2}\s*au\s*\d{1,2}\s*(?:janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)\s*\d{4})",
@@ -145,7 +130,6 @@ def show_opera():
                     matches += re.findall(p, raw_text)
                 dates = " ; ".join(matches) if matches else "Unknown"
 
-                # Lieu
                 location = ("Bobigny" if "Bobigny" in raw_text else
                             "Philharmonie de Paris" if "Philharmonie de Paris" in raw_text else
                             "Studio Bastille" if "Studio Bastille" in raw_text else
@@ -161,7 +145,6 @@ def show_opera():
 
                 link = show.find("a", href=True)
                 link_url = link["href"] if link else None
-
                 events.append({"title": title, "dates": dates, "location": location, "url": link_url})
 
     except WebDriverException as e:
@@ -177,11 +160,15 @@ def show_opera():
             st.markdown(f"[🔗 Voir le spectacle]({e['url']})")
         st.divider()
 
-# ── Page CAC40 ─────────
+# ── Page CAC40 ─────────────────────────────────────────────
 def show_cac40():
     st.title("📊 CAC 40 Dashboard")
     filename = "CAC40_closing_prices_named.csv"
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+    except NameError:
+        base_dir = os.getcwd()
+
     file_path = os.path.join(base_dir, filename)
 
     try:
@@ -193,55 +180,68 @@ def show_cac40():
     CAC40_df = df.set_index("Date").apply(pd.to_numeric, errors="coerce")
     companies = CAC40_df.columns.tolist()
     selected = st.selectbox("Sélectionner une société", companies)
-    latest = CAC40_df[selected].dropna().iloc[-1]
 
-    
-    # Calcul des variations
     prices = CAC40_df[selected].dropna()
+    latest = prices.iloc[-1]
 
-    variation_1d = latest - prices.iloc[-2] if len(prices) > 1 else 0
-    variation_1w = latest - prices.iloc[-6] if len(prices) > 5 else 0
+    variation_1d = latest - prices.iloc[-2]  if len(prices) > 1  else 0
+    variation_1w = latest - prices.iloc[-6]  if len(prices) > 5  else 0
     variation_1m = latest - prices.iloc[-21] if len(prices) > 20 else 0
 
-    # Affichage des métriques
-  # Affichage des variations côte à côte
     col1, col2, col3 = st.columns(3)
-    col1.metric(label="Variation 1 jour", value=f"{variation_1d:+.2f} €")
-    col2.metric(label="Variation 1 semaine", value=f"{variation_1w:+.2f} €")
-    col3.metric(label="Variation 1 mois", value=f"{variation_1m:+.2f} €")
+    col1.metric("Variation 1 jour",    f"{variation_1d:+.2f} €", delta=f"{variation_1d:+.2f}")
+    col2.metric("Variation 1 semaine", f"{variation_1w:+.2f} €", delta=f"{variation_1w:+.2f}")
+    col3.metric("Variation 1 mois",    f"{variation_1m:+.2f} €", delta=f"{variation_1m:+.2f}")
 
-# Graphique historique
     st.subheader(f"{selected} — Historique des prix")
     st.line_chart(prices)
+
+# ── Page News ─────────────────────────────────────────────
 def show_news():
-    import streamlit as st
-    import requests
-    from bs4 import BeautifulSoup
+    st.title("📰 Actualités – Andernos-les-Bains")
 
-    st.title("📰 Actualités – Andernos")
+    feeds = [
+        {"name": "📰 InfoBassin",       "url": "https://www.infobassin.com/tag/andernos/feed/"},
+        {"name": "📺 TVBA Arcachon",    "url": "https://tvba.fr/feed/"},
+        {"name": "🏙️ France Bleu",     "url": "https://www.francebleu.fr/rss/infos.xml"},
+    ]
 
-    url = "https://www.sudouest.fr/gironde/andernos-les-bains/"
-    headers = {"User-Agent": "Mozilla/5.0"}
+    for feed in feeds:
+        st.subheader(feed["name"])
+        try:
+            req = urllib.request.Request(
+                feed["url"],
+                headers={"User-Agent": "Mozilla/5.0"}
+            )
+            response = urllib.request.urlopen(req, timeout=10)
+            raw = response.read()
+            parsed = feedparser.parse(raw)
 
-    r = requests.get(url, headers=headers)
-    soup = BeautifulSoup(r.text, "html.parser")
+            if not parsed.entries:
+                st.warning("Aucun article trouvé.")
+                continue
 
-    articles = soup.select("article")[:5]
+            for entry in parsed.entries[:4]:
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    st.markdown(f"**{entry.get('title', 'Sans titre')}**")
+                    summary = entry.get("summary", "")
+                    if summary:
+                        clean = BeautifulSoup(summary, "html.parser").get_text()
+                        st.caption(clean[:200] + "..." if len(clean) > 200 else clean)
+                with col2:
+                    published = entry.get("published", "")
+                    if published:
+                        st.caption(published[:16])
+                    link = entry.get("link", "")
+                    if link:
+                        st.markdown(f"[Lire ➜]({link})")
+                st.divider()
 
-    if not articles:
-        st.write("Pas de news disponibles pour Andernos.")
-        return
+        except Exception as e:
+            st.error(f"❌ Erreur : {e}")
 
-    for a in articles:
-        title = a.select_one("h2, h3")
-        link = a.find("a", href=True)
-
-        if title and link:
-            st.markdown(f"### {title.text.strip()}")
-            st.markdown(f"[Lire la suite]({link['href']})")
-            st.divider()
-
-# ── Affichage selon la page ─────────
+# ── Router ─────────────────────────────────────────────────
 if page == "Accueil":
     show_accueil()
 elif page == "Météo":
