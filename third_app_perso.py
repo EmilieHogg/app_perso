@@ -79,113 +79,40 @@ def show_opera():
     st.title("Opera de Paris - Saison 25/26")
 
     opera_shows = [
-        {
-            "title": "Aida",
-            "dates": "24 sept. au 04 nov. 2025",
-            "location": "Opera Bastille",
-            "url": "https://www.operadeparis.fr/saison-25-26/opera/aida"
-        },
-        {
-            "title": "La Walkyrie",
-            "dates": "11 nov. au 30 nov. 2025",
-            "location": "Opera Bastille",
-            "url": "https://www.operadeparis.fr/saison-25-26/opera/la-walkyrie"
-        },
-        {
-            "title": "Siegfried",
-            "dates": "17 janv. au 31 janv. 2026",
-            "location": "Opera Bastille",
-            "url": "https://www.operadeparis.fr/saison-25-26/opera/siegfried"
-        },
-        {
-            "title": "Eugene Oneguine",
-            "dates": "15 nov. 2025 au 27 dec. 2025",
-            "location": "Palais Garnier",
-            "url": "https://www.operadeparis.fr/saison-25-26/opera/eugene-oneguine"
-        },
-        {
-            "title": "Tosca",
-            "dates": "07 fevr. au 19 mars 2026",
-            "location": "Opera Bastille",
-            "url": "https://www.operadeparis.fr/saison-25-26/opera/tosca"
-        },
-        {
-            "title": "Carmen",
-            "dates": "24 fevr. au 20 mars 2026",
-            "location": "Opera Bastille",
-            "url": "https://www.operadeparis.fr/saison-25-26/opera/carmen"
-        },
-        {
-            "title": "Ercole Amante",
-            "dates": "28 mai au 14 juin 2026",
-            "location": "Opera Bastille",
-            "url": "https://www.operadeparis.fr/saison-25-26/opera/ercole-amante"
-        },
+        {"title": "Aida",                   "dates": "24 sept. au 04 nov. 2025",  "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/saison-25-26/opera/aida"},
+        {"title": "La Walkyrie",             "dates": "11 nov. au 30 nov. 2025",   "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/saison-25-26/opera/la-walkyrie"},
+        {"title": "Eugene Oneguine",         "dates": "15 nov. au 27 dec. 2025",   "location": "Palais Garnier",             "url": "https://www.operadeparis.fr/saison-25-26/opera/eugene-oneguine"},
+        {"title": "Siegfried",               "dates": "17 janv. au 31 janv. 2026", "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/saison-25-26/opera/siegfried"},
+        {"title": "Tosca",                   "dates": "07 fevr. au 19 mars 2026",  "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/saison-25-26/opera/tosca"},
+        {"title": "Carmen",                  "dates": "24 fevr. au 20 mars 2026",  "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/saison-25-26/opera/carmen"},
+        {"title": "Ercole Amante",           "dates": "28 mai au 14 juin 2026",    "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/saison-25-26/opera/ercole-amante"},
     ]
 
     ballet_shows = [
-        {
-            "title": "Giselle",
-            "dates": "28 sept. au 31 oct. 2025",
-            "location": "Palais Garnier",
-            "url": "https://www.operadeparis.fr/saison-25-26/ballet/giselle"
-        },
-        {
-            "title": "Racines",
-            "dates": "06 oct. au 10 nov. 2025",
-            "location": "Opera Bastille",
-            "url": "https://www.operadeparis.fr/saison-25-26/ballet/racines"
-        },
-        {
-            "title": "Notre-Dame de Paris",
-            "dates": "06 dec. au 31 dec. 2025",
-            "location": "Opera Bastille",
-            "url": "https://www.operadeparis.fr/saison-25-26/ballet/notre-dame-de-paris"
-        },
-        {
-            "title": "Contrastes",
-            "dates": "01 dec. au 31 dec. 2025",
-            "location": "Palais Garnier",
-            "url": "https://www.operadeparis.fr/saison-25-26/ballet/contrastes"
-        },
-        {
-            "title": "Le Parc",
-            "dates": "03 fevr. au 25 fevr. 2026",
-            "location": "Palais Garnier",
-            "url": "https://www.operadeparis.fr/saison-25-26/ballet/le-parc"
-        },
-        {
-            "title": "Empreintes",
-            "dates": "11 mars au 28 mars 2026",
-            "location": "Palais Garnier",
-            "url": "https://www.operadeparis.fr/saison-25-26/ballet/empreintes"
-        },
-        {
-            "title": "Romeo et Juliette",
-            "dates": "02 avr. au 12 mai 2026",
-            "location": "Opera Bastille",
-            "url": "https://www.operadeparis.fr/saison-25-26/ballet/romeo-et-juliette"
-        },
-        {
-            "title": "La Dame aux camelias",
-            "dates": "05 mai au 23 mai 2026",
-            "location": "Palais Garnier",
-            "url": "https://www.operadeparis.fr/saison-25-26/ballet/la-dame-aux-camelias"
-        },
-        {
-            "title": "La Bayadere",
-            "dates": "17 juin au 14 juil. 2026",
-            "location": "Opera Bastille",
-            "url": "https://www.operadeparis.fr/saison-25-26/ballet/la-bayadere"
-        },
-        {
-            "title": "Vibrations",
-            "dates": "27 juin au 14 juil. 2026",
-            "location": "Palais Garnier",
-            "url": "https://www.operadeparis.fr/saison-25-26/ballet/vibrations"
-        },
+        {"title": "Giselle",                 "dates": "28 sept. au 31 oct. 2025",  "location": "Palais Garnier",             "url": "https://www.operadeparis.fr/saison-25-26/ballet/giselle"},
+        {"title": "Racines",                 "dates": "06 oct. au 10 nov. 2025",   "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/saison-25-26/ballet/racines"},
+        {"title": "Notre-Dame de Paris",     "dates": "06 dec. au 31 dec. 2025",   "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/saison-25-26/ballet/notre-dame-de-paris"},
+        {"title": "Contrastes",              "dates": "01 dec. au 31 dec. 2025",   "location": "Palais Garnier",             "url": "https://www.operadeparis.fr/saison-25-26/ballet/contrastes"},
+        {"title": "Le Parc",                 "dates": "03 fevr. au 25 fevr. 2026", "location": "Palais Garnier",             "url": "https://www.operadeparis.fr/saison-25-26/ballet/le-parc"},
+        {"title": "Empreintes",              "dates": "11 mars au 28 mars 2026",   "location": "Palais Garnier",             "url": "https://www.operadeparis.fr/saison-25-26/ballet/empreintes"},
+        {"title": "Romeo et Juliette",       "dates": "02 avr. au 12 mai 2026",    "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/saison-25-26/ballet/romeo-et-juliette"},
+        {"title": "La Dame aux camelias",    "dates": "05 mai au 23 mai 2026",     "location": "Palais Garnier",             "url": "https://www.operadeparis.fr/saison-25-26/ballet/la-dame-aux-camelias"},
+        {"title": "La Bayadere",             "dates": "17 juin au 14 juil. 2026",  "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/saison-25-26/ballet/la-bayadere"},
+        {"title": "Vibrations",              "dates": "27 juin au 14 juil. 2026",  "location": "Palais Garnier",             "url": "https://www.operadeparis.fr/saison-25-26/ballet/vibrations"},
     ]
 
+    # ── NEW: Concerts et recitals ──────────────────────────
+    concert_shows = [
+        {"title": "Hector Berlioz - Requiem",     "dates": "22 mai 2026 a 20h",    "location": "Opera Bastille",              "url": "https://www.operadeparis.fr/en/season-25-26/concerts-and-recitals/hector-berlioz"},
+        {"title": "Entre Ardenne et Bretagne",    "dates": "04 mars 2026 a 20h",   "location": "Amphitheatre Olivier Messiaen","url": "https://www.operadeparis.fr/en/season-25-26/concerts-and-recitals/march-4th-concert"},
+        {"title": "Printemps autrichien",         "dates": "22 avr. 2026 a 20h",   "location": "Amphitheatre Olivier Messiaen","url": "https://www.operadeparis.fr/en/season-25-26/concerts-and-recitals/april-22nd-concert"},
+        {"title": "Gaites parisiennes",           "dates": "28 juin 2026 a 12h",   "location": "Palais Garnier",             "url": "https://www.operadeparis.fr/en/season-25-26/concerts-and-recitals/gaites-parisiennes"},
+        {"title": "Concert ADO",                  "dates": "13 juin 2026 a 20h",   "location": "Palais Garnier",             "url": "https://www.operadeparis.fr/en/season-25-26/concerts-and-recitals/concert-ado"},
+        {"title": "Dvorak in New York",           "dates": "09 nov. 2025",         "location": "Palais Garnier",             "url": "https://www.operadeparis.fr/en/season-25-26/concerts-and-recitals/november-9-concert"},
+        {"title": "Concert et recital - Artistes de l Academie", "dates": "Saison 25/26", "location": "Palais Garnier",      "url": "https://www.operadeparis.fr/en/season-25-26/concerts-and-recitals/concert-recital"},
+    ]
+
+    # ── Display function ───────────────────────────────────
     def display_shows(shows):
         for show in shows:
             col1, col2, col3 = st.columns([3, 2, 1])
@@ -198,11 +125,15 @@ def show_opera():
                 st.markdown(f"[Reserver]({show['url']})")
             st.divider()
 
-    tab1, tab2 = st.tabs(["Opera", "Ballet"])
+    # ── 3 Tabs ─────────────────────────────────────────────
+    tab1, tab2, tab3 = st.tabs(["Opera", "Ballet", "Concerts et Recitals"])
+
     with tab1:
         display_shows(opera_shows)
     with tab2:
         display_shows(ballet_shows)
+    with tab3:
+        display_shows(concert_shows)
 
     st.markdown("---")
     st.markdown("[Voir le programme complet](https://www.operadeparis.fr/programmation/saison-25-26)")
