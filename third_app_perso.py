@@ -9,6 +9,8 @@ from streamlit_lottie import st_lottie
 import time
 import feedparser
 import urllib.request
+import yfinance as yf
+
 
 # ── Page config ────────────────────────────────────────────
 st.set_page_config(page_title="Tableau de bord interactif", layout="centered")
@@ -152,6 +154,31 @@ def show_cac40():
 
     file_path = os.path.join(base_dir, filename)
 
+    # récupérer l'indice CAC40
+    cac = yf.Ticker("^FCHI")
+    data = cac.history(period="1mo")  # dernier mois
+    latest = data['Close'].iloc[-1]
+
+    var_1d = []
+    var_1w = []
+    var_1m = []
+    # variations
+    var_1d = data['Close'].iloc[-1] - data['Close'].iloc[-2] if len(data) > 1 else 0
+    var_1w = data['Close'].iloc[-1] - data['Close'].iloc[-6] if len(data) > 5 else 0
+    var_1m = data['Close'].iloc[-1] - data['Close'].iloc[0] if len(data) > 20 else 0
+
+    # afficher dans Streamlit
+    st.subheader("📈 CAC40")
+    col0, col1, col2, col3 = st.columns(4)
+    col0.metric("Valeur CAC40", f"{latest:.2f} pts")
+    col1.metric("Variation 1 jour", f"{var_1d:+.2f} pts")
+    col2.metric("Variation 1 semaine", f"{var_1w:+.2f} pts")
+    col3.metric("Variation 1 mois", f"{var_1m:+.2f} pts")
+
+    # graphique de l'indice
+    st.line_chart(data['Close'])
+
+    st.markdown('<hr style="border:1px solid #d3d3d3">', unsafe_allow_html=True)
     try:
         df = pd.read_csv(file_path)
     except FileNotFoundError:
@@ -159,20 +186,44 @@ def show_cac40():
         return
 
     CAC40_df = df.set_index("Date").apply(pd.to_numeric, errors="coerce")
+    
     companies = CAC40_df.columns.tolist()
     selected = st.selectbox("Selectionner une societe", companies)
 
     prices = CAC40_df[selected].dropna()
-    latest = prices.iloc[-1]
+    
+  
 
-    variation_1d = latest - prices.iloc[-2]  if len(prices) > 1  else 0
-    variation_1w = latest - prices.iloc[-6]  if len(prices) > 5  else 0
-    variation_1m = latest - prices.iloc[-21] if len(prices) > 20 else 0
+    for company in companies:
+        prices = CAC40_df[company].dropna()
+        
+        var_1d_list = []
+        var_1w_list = []
+        var_1m_list = []
+        
+        if len(prices) < 2:
+            continue
 
+        latest = prices.iloc[-1]
+
+        if len(prices) > 1:
+            var_1d_list.append(latest - prices.iloc[-2])
+        if len(prices) > 5:
+            var_1w_list.append(latest - prices.iloc[-6])
+        if len(prices) > 20:
+            var_1m_list.append(latest - prices.iloc[-21])
+
+        # Moyenne des variations
+        cac_1d = sum(var_1d_list) / len(var_1d_list)
+        cac_1w = sum(var_1w_list) / len(var_1w_list)
+        cac_1m = sum(var_1m_list) / len(var_1m_list)
+
+        # Affichage
     col1, col2, col3 = st.columns(3)
-    col1.metric("Variation 1 jour",    f"{variation_1d:+.2f} EUR", delta=f"{variation_1d:+.2f}")
-    col2.metric("Variation 1 semaine", f"{variation_1w:+.2f} EUR", delta=f"{variation_1w:+.2f}")
-    col3.metric("Variation 1 mois",    f"{variation_1m:+.2f} EUR", delta=f"{variation_1m:+.2f}")
+
+    col1.metric("CAC40 - 1 jour", f"{cac_1d:+.2f}")
+    col2.metric("CAC40 - 1 semaine", f"{cac_1w:+.2f}")
+    col3.metric("CAC40 - 1 mois", f"{cac_1m:+.2f}")
 
     st.subheader(f"{selected} - Historique des prix")
     st.line_chart(prices)
