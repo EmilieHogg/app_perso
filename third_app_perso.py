@@ -4,12 +4,15 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import re
+from datetime import datetime
 import json
 from streamlit_lottie import st_lottie
 import time
 import feedparser
 import urllib.request
 import yfinance as yf
+import locale
+locale.setlocale(locale.LC_TIME, "fr_FR.UTF-8")
 
 
 # ── Page config ────────────────────────────────────────────
@@ -165,7 +168,7 @@ def show_cac40():
     # variations
     var_1d = data['Close'].iloc[-1] - data['Close'].iloc[-2] if len(data) > 1 else 0
     var_1w = data['Close'].iloc[-1] - data['Close'].iloc[-6] if len(data) > 5 else 0
-    var_1m = data['Close'].iloc[-1] - data['Close'].iloc[0] if len(data) > 20 else 0
+    var_1m = data['Close'].iloc[-1] - data['Close'].iloc[-21] if len(data) > 20 else 0
 
     # afficher dans Streamlit
     st.subheader("📈 CAC40")
@@ -188,42 +191,37 @@ def show_cac40():
     CAC40_df = df.set_index("Date").apply(pd.to_numeric, errors="coerce")
     
     companies = CAC40_df.columns.tolist()
+    
+    #prices = CAC40_df[selected].dropna()
+    
     selected = st.selectbox("Selectionner une societe", companies)
 
+
+   
+        
     prices = CAC40_df[selected].dropna()
+        
+    var_1d_list = []
+    var_1w_list = []
+    var_1m_list = []
+        
     
-  
+    if len(prices) < 2:
+        st.warning("Pas assez de données pour cette société")
 
-    for company in companies:
-        prices = CAC40_df[company].dropna()
-        
-        var_1d_list = []
-        var_1w_list = []
-        var_1m_list = []
-        
-        if len(prices) < 2:
-            continue
+    latest = prices.iloc[-1]
 
-        latest = prices.iloc[-1]
-
-        if len(prices) > 1:
-            var_1d_list.append(latest - prices.iloc[-2])
-        if len(prices) > 5:
-            var_1w_list.append(latest - prices.iloc[-6])
-        if len(prices) > 20:
-            var_1m_list.append(latest - prices.iloc[-21])
-
-        # Moyenne des variations
-        cac_1d = sum(var_1d_list) / len(var_1d_list)
-        cac_1w = sum(var_1w_list) / len(var_1w_list)
-        cac_1m = sum(var_1m_list) / len(var_1m_list)
+          # Calcul des variations pour la société sélectionnée
+    var_1d = latest - prices.iloc[-2] if len(prices) > 1 else 0
+    var_1w = latest - prices.iloc[-6] if len(prices) > 5 else 0
+    var_1m = latest - prices.iloc[-21] if len(prices) > 20 else 0
 
         # Affichage
     col1, col2, col3 = st.columns(3)
 
-    col1.metric("CAC40 - 1 jour", f"{cac_1d:+.2f}")
-    col2.metric("CAC40 - 1 semaine", f"{cac_1w:+.2f}")
-    col3.metric("CAC40 - 1 mois", f"{cac_1m:+.2f}")
+    col1.metric("1 jour", f"{var_1d:+.2f}%")
+    col2.metric("1 semaine", f"{var_1w:+.2f}%")
+    col3.metric("1 mois", f"{var_1m:+.2f}%")
 
     st.subheader(f"{selected} - Historique des prix")
     st.line_chart(prices)
