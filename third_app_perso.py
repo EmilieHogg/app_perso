@@ -12,7 +12,7 @@ import feedparser
 import urllib.request
 import yfinance as yf
 import locale
-locale.setlocale(locale.LC_TIME, "fr_FR.UTF-8")
+
 
 
 # ── Page config ────────────────────────────────────────────
