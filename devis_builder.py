@@ -1,5 +1,10 @@
 from reportlab.platypus import SimpleDocTemplate, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
+import streamlit as st
+
+st.write("hello")
+st.set_page_config(page_title="Undine application finance", page_icon="👋",)
+
 
 def create_pdf(client, service, amount, quantity, invoice_date):
     file_path = "/Users/emiliehogg/Documents/Documents - MacBook Air de Emilie/GitHub/app_perso/devis.pdf"
